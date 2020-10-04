@@ -7,7 +7,7 @@
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/pax.blazor.survey.csproj",
+                "${workspaceFolder}/pax.blazor.survey/pax.blazor.survey.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],
@@ -19,7 +19,7 @@
             "type": "process",
             "args": [
                 "publish",
-                "${workspaceFolder}/pax.blazor.survey.csproj",
+                "${workspaceFolder}/pax.blazor.survey/pax.blazor.survey.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],
@@ -32,7 +32,7 @@
             "args": [
                 "watch",
                 "run",
-                "${workspaceFolder}/pax.blazor.survey.csproj",
+                "${workspaceFolder}/pax.blazor.survey/pax.blazor.survey.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],

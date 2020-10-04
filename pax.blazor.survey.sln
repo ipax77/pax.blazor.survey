@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30516.212
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "pax.blazor.survey", "pax.blazor.survey.csproj", "{D8B0C178-C747-45FF-A274-D5B2E5E5D120}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "pax.blazor.survey", "pax.blazor.survey/pax.blazor.survey.csproj", "{D8B0C178-C747-45FF-A274-D5B2E5E5D120}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
