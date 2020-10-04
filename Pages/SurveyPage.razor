@@ -1,0 +1,79 @@
+﻿@page "/survey"
+@page "/survey/{SurveyUrl}"
+@using Microsoft.AspNetCore.Http
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Components.Authorization
+@using pax.blazor.survey.Services
+@using pax.blazor.survey.Models
+@using pax.blazor.survey.Components
+@using pax.blazor.survey.Data
+@inject DbService _db
+@inject AuthenticationStateProvider _auth
+@inject IHttpContextAccessor _httpContextAccssor
+
+@if (isLoading)
+{
+    <div class="d-flex flex-row">
+        <div class="flex-shrink-1 p-2">
+            <h4><span class="oi spinner-grow spinner-grow-sm text-success"> </span></h4>
+        </div>
+        <div class="justify-content-center align-self-center">
+            <h4 class="text-white-50">Loading...</h4>
+        </div>
+    </div>
+}
+else
+{
+    if (Survey != null && User != null)
+    {
+        <AnswerComponent Survey="Survey" User="User"></AnswerComponent>
+        <br />
+        <SurveyListComponent Survey="Survey" SurveyPage="this" surveyList="surveyList"></SurveyListComponent>
+    }
+    else
+    {
+        <p>No surveys available.</p>
+    }
+}
+
+@code {
+    [Parameter]
+    public string SurveyUrl { get; set; }
+
+    bool isLoading = true;
+    Survey Survey;
+    User User;
+    List<SurveyListItem> surveyList = new List<SurveyListItem>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        string UserName = await CheckAuth();
+        Survey = await _db.GetSurveyAsync(SurveyUrl);
+        surveyList = await _db.GetSurveysListAsync();
+        string IPAddress = _httpContextAccssor.HttpContext.Connection.RemoteIpAddress.ToString();
+        string UserAgent = _httpContextAccssor.HttpContext.Request.Headers["User-Agent"];
+
+        User = await _db.GetUserAsync(Survey, UserName, IPAddress, UserAgent);
+        isLoading = false;
+    }
+
+    public void Update(Survey survey)
+    {
+        Survey = survey;
+        StateHasChanged();
+    }
+
+    private async Task<string> CheckAuth()
+    {
+        var authState = await _auth.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity.IsAuthenticated)
+        {
+            return user.Identity.Name;
+        } else
+        {
+            return String.Empty;
+        }
+    }
+}

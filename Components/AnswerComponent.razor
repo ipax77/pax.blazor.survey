@@ -1,0 +1,114 @@
+﻿@using pax.blazor.survey.Services
+@using pax.blazor.survey.Models
+@using pax.blazor.survey.Components
+@inject DbService _db
+@implements IDisposable
+
+
+@if (Survey.ShowProgress)
+{
+    <header class="sticky-top">
+        <div class="progress">
+            <div class="progress-bar progress-bar-striped bg-success" role="progressbar" style="width: @progress%" aria-valuenow="@progress" aria-valuemin="0" aria-valuemax="100">@MathF.Round(progress, 2)%</div>
+        </div>
+    </header>
+}
+
+<h4>@Survey.Title</h4>
+<div class="jumbotron pt-2 pb-2">@Survey.Description</div>
+<br />
+<EditForm EditContext="editContext" OnValidSubmit="@( async () => HandleValidSubmit() )" OnInvalidSubmit="@( async () => HandleInvalidSubmit() )">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <CascadingValue Value="editContext" Name="Context1">
+        <CascadingValue Value="Survey" Name="Survey1">
+            <CascadingValue Value="User" Name="User1">
+                @foreach (Question question in Survey.Questions.OrderBy(o => o.Pos))
+                {
+                    <div class="card mb-1">
+                        <div class="card-header">
+                            <h5>@question.Interview</h5>
+                        </div>
+                        <div class="card-body">
+                            @if (question.Type == (int)QuestionType.Text)
+                            {
+                                <AnswerTextComponent Question="question"></AnswerTextComponent>
+                            }
+                            else if (question.Type == (int)QuestionType.LongText)
+                            {
+                                <AnswerLongTextComponent Question="question"></AnswerLongTextComponent>
+                            }
+                            else if (question.Type == (int)QuestionType.Bool)
+                            {
+                                <AnswerBoolComponent Question="question"></AnswerBoolComponent>
+                            }
+                            else if (question.Type == (int)QuestionType.SingleSelect)
+                            {
+                                <AnswerSingleSelectComponent Question="question"></AnswerSingleSelectComponent>
+                            }
+                            else if (question.Type == (int)QuestionType.MultiSelect)
+                            {
+                                <AnswerMultiSelectComponent Question="question"></AnswerMultiSelectComponent>
+                            }
+                        </div>
+                    </div>
+                }
+            </CascadingValue>
+        </CascadingValue>
+    </CascadingValue>
+
+    <button type="submit" class="btn btn-primary">Submit</button>
+</EditForm>
+
+@code {
+    [Parameter]
+    public Survey Survey { get; set; }
+
+    [Parameter]
+    public User User { get; set; }
+
+    [Parameter]
+    public bool isPreview { get; set; } = false;
+
+    private EditContext editContext;
+
+    float progress = 0;
+
+    protected override void OnParametersSet()
+    {
+        if (Survey != null)
+        {
+            editContext = new EditContext(Survey);
+            editContext.OnFieldChanged += HandleFieldChange;
+        }
+    }
+
+    void HandleFieldChange(object sender, FieldChangedEventArgs e)
+    {
+        if (Survey.ShowProgress)
+        {
+            int done = User.Responses.Where(x => x.Survey == Survey && x.Answers.Where(y => !String.IsNullOrEmpty(y.AnswerValue) || y.AnswerBool != false).Count() > 0).Count();
+            int todo = Survey.Questions.Count;
+            progress = (float)done * 100f / (float)todo;
+            StateHasChanged();
+        }
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        if (isPreview == false)
+        {
+            bool success = await _db.SaveUserAsync(User);
+        }
+    }
+
+    private async Task HandleInvalidSubmit()
+    {
+
+    }
+
+    public void Dispose()
+    {
+        editContext.OnFieldChanged -= HandleFieldChange;
+    }
+}

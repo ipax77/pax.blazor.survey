@@ -1,0 +1,14 @@
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "",
+    "ApplicationConnection": ""
+  },
+  "AdminUser": {
+    "UserName": "testadmin@localhost",
+    "Password": ""
+  },
+  "ModUser": {
+    "UserName": "testmod@localhost",
+    "Password": ""
+  }
+}

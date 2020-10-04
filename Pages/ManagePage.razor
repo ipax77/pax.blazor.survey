@@ -1,0 +1,74 @@
+﻿@page "/manage"
+@page "/manage/{SurveyID:int}"
+@using Models
+@using Services
+@using pax.blazor.survey.Components
+@using Microsoft.Extensions.Logging
+@inject ILogger<ManagePage> _logger
+@inject DbService _db
+
+
+@if (isLoading)
+{
+    <div class="d-flex flex-row">
+        <div class="flex-shrink-1 p-2">
+            <h4><span class="oi spinner-grow spinner-grow-sm text-success"> </span></h4>
+        </div>
+        <div class="justify-content-center align-self-center">
+            <h4 class="text-white-50">Loading...</h4>
+        </div>
+    </div>
+}
+else
+{
+    <button type="button" class="btn btn-primary" @onclick="CreateNew">Create New Survey</button>
+
+    <div class="d-flex">
+        <div class="col">
+            <SurveyComponent Survey="Survey" ManagePage="this"></SurveyComponent>
+        </div>
+        <div class="col">
+            <h4 class="text-black-50">Preview</h4>
+            <AnswerComponent Survey="Survey" User="new User() { Responses = new List<Response>() }" isPreview="true"></AnswerComponent>
+        </div>
+    </div>
+    <SurveyListComponent Survey="Survey" ManagePage="this" surveyList="surveyList"></SurveyListComponent>
+}
+
+
+@code {
+    [Parameter]
+    public int SurveyID { get; set; }
+
+    Survey Survey;
+    List<SurveyListItem> surveyList = new List<SurveyListItem>();
+    bool isLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+
+        surveyList = await _db.GetSurveysListAsync();
+        if (surveyList.Any())
+        {
+            Survey = await _db.GetSurveyAsync(surveyList.First().ID);
+        }
+        else
+        {
+            Survey = new Survey();
+            Survey.Questions = new List<Question>() { new Question() { Pos = 1, Options = new List<Option>() { new Option() } } };
+        }
+        isLoading = false;
+    }
+
+    public void Update(Survey survey)
+    {
+        Survey = survey;
+        StateHasChanged();
+    }
+
+    void CreateNew()
+    {
+        Survey = new Survey();
+        Survey.Questions = new List<Question>() { new Question() { Pos = 1, Options = new List<Option>() { new Option() } } };
+    }
+}

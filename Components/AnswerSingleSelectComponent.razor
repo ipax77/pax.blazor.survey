@@ -1,0 +1,48 @@
+﻿@using pax.blazor.survey.Models
+@using pax.blazor.survey.Data
+
+
+<InputRadioGroup @bind-Value="Response.Answers.ElementAt(0).AnswerValue">
+    @for (int i = 0; i < Question.Options.Count(); i++)
+    {
+        int j = i;
+    <div>
+        <label>
+            <InputRadio Value="Question.Options.ElementAt(j).OptionValue"></InputRadio>
+            @Question.Options.ElementAt(j).OptionValue
+        </label>
+    </div>
+    }
+</InputRadioGroup>
+
+@code {
+    [Parameter]
+    public Question Question { get; set; }
+
+    [CascadingParameter(Name = "Context1")]
+    protected EditContext editContext { get; set; }
+
+    [CascadingParameter(Name = "Survey1")]
+    protected Survey Survey { get; set; }
+
+    [CascadingParameter(Name = "User1")]
+    protected User User { get; set; }
+
+    Response Response;
+
+    protected override void OnParametersSet()
+    {
+        Response = User.Responses.FirstOrDefault(f => f.Survey == Survey && f.Question == Question);
+        if (Response == null)
+        {
+            Response = new Response();
+            Response.Survey = Survey;
+            Response.User = User;
+            Response.Question = Question;
+            Response.Answers = new List<Answer>() { new Answer() { Response = Response } };
+            User.Responses.Add(Response);
+        }
+        base.OnParametersSet();
+    }
+
+}

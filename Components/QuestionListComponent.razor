@@ -1,0 +1,35 @@
+﻿@using pax.blazor.survey.Models
+@using pax.blazor.survey.Services
+@using Microsoft.AspNetCore.Components.Web.Virtualization
+@inject DbService _db
+
+@if (Survey.QuestionListItems != null && Survey.QuestionListItems.Any())
+{
+<Virtualize Items="Survey.QuestionListItems">
+    <div class="d-flex">
+        <p class="col">@context.ID</p>
+        <p class="col">@context.Interview</p>
+        <p class="col">@context.Responses</p>
+        <p class="col">@(Enum.GetName<QuestionType>((QuestionType)context.Type))></p>
+    </div>
+</Virtualize>
+}
+
+@code {
+    [Parameter]
+    public Survey Survey { get; set; }
+
+    protected override Task OnParametersSetAsync()
+    {
+        Update();
+        return base.OnParametersSetAsync();
+    }
+
+    public async void Update(Survey survey = null)
+    {
+        if (survey != null)
+            Survey = survey;
+        Survey.QuestionListItems = await _db.GetSurveyQuestionsAsync(Survey);
+        StateHasChanged();
+    }
+}

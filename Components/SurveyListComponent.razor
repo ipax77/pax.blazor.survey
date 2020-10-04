@@ -1,0 +1,61 @@
+﻿@using pax.blazor.survey.Models
+@using pax.blazor.survey.Services
+@using Microsoft.AspNetCore.Components.Web.Virtualization
+@inject DbService _db
+
+<Virtualize Items="surveyList">
+    <div class="d-flex pointer" @onclick="(() => ChangeSurvey(context.ID))">
+        <p class="col">@context.ID</p>
+        <p class="col">@context.Title</p>
+        <p class="col">@context.Questions</p>
+        <p class="col">@context.Users</p>
+    </div>
+</Virtualize>
+
+
+@code {
+    [Parameter]
+    public Survey Survey { get; set; }
+
+    [Parameter]
+    public pax.blazor.survey.Pages.ManagePage ManagePage { get; set;  }
+
+    [Parameter]
+    public pax.blazor.survey.Pages.SurveyPage SurveyPage { get; set;  }
+
+    [Parameter]
+    public List<SurveyListItem> surveyList { get; set; } = new List<SurveyListItem>();
+
+    int id = 0;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Survey != null && id != Survey.ID)
+        {
+            if (Survey.ID > 0)
+            {
+                var listItem = surveyList.FirstOrDefault(f => f.ID == Survey.ID);
+                if (listItem == null)
+                    surveyList.Add(new SurveyListItem() { ID = Survey.ID, Title = Survey.Title, Questions = Survey.Questions.Count(), Users = Survey.Users == null ? 0 : Survey.Users.Count() });
+                else
+                {
+                    //surveyList.Remove(listItem);
+                    //surveyList.Add(new SurveyListItem() { ID = Survey.ID, Title = Survey.Title, Questions = Survey.Questions.Count(), Users = Survey.Users == null ? 0 : Survey.Users.Count() });
+                }
+
+            }
+            id = Survey.ID;
+            StateHasChanged();
+        }
+    }
+
+    public async void ChangeSurvey(int id)
+    {
+        Survey = await _db.GetSurveyAsync(id);
+        if (ManagePage != null)
+            ManagePage.Update(Survey);
+        if (SurveyPage != null)
+            SurveyPage.Update(Survey);
+    }
+
+}

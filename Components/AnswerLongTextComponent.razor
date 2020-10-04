@@ -1,0 +1,37 @@
+﻿@using pax.blazor.survey.Models
+@using pax.blazor.survey.Data
+
+
+<InputTextArea class="form-control" placeholder="@(Question.Options.ElementAt(0).OptionValue)" @bind-Value="Response.Answers.ElementAt(0).AnswerValue" />
+
+@code {
+    [Parameter]
+    public Question Question { get; set; }
+
+    [CascadingParameter(Name = "Context1")]
+    protected EditContext editContext { get; set; }
+
+    [CascadingParameter(Name = "Survey1")]
+    protected Survey Survey { get; set; }
+
+    [CascadingParameter(Name = "User1")]
+    protected User User { get; set; }
+
+    Response Response;
+
+    protected override void OnParametersSet()
+    {
+        Response = User.Responses.FirstOrDefault(f => f.Survey == Survey && f.Question == Question);
+        if (Response == null)
+        {
+            Response = new Response();
+            Response.Survey = Survey;
+            Response.User = User;
+            Response.Question = Question;
+            Response.Answers = new List<Answer>() { new Answer() { Response = Response } };
+            User.Responses.Add(Response);
+        }
+        base.OnParametersSet();
+    }
+
+}
