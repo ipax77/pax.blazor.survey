@@ -28,7 +28,7 @@ else
     {
         <AnswerComponent Survey="Survey" User="User"></AnswerComponent>
         <br />
-        <SurveyListComponent Survey="Survey" SurveyPage="this" surveyList="surveyList"></SurveyListComponent>
+        @*<SurveyListComponent Survey="Survey" SurveyPage="this" surveyList="surveyList"></SurveyListComponent>*@
     }
     else
     {
@@ -49,7 +49,7 @@ else
     {
         string UserName = await CheckAuth();
         Survey = await _db.GetSurveyAsync(SurveyUrl);
-        surveyList = await _db.GetSurveysListAsync();
+        //surveyList = await _db.GetSurveysListAsync();
         string IPAddress = _httpContextAccssor.HttpContext.Connection.RemoteIpAddress.ToString();
         string UserAgent = _httpContextAccssor.HttpContext.Request.Headers["User-Agent"];
 

@@ -3,7 +3,7 @@
 @using pax.blazor.survey.Services
 @inject DbService _db
 
-<InputText class="form-control" placeholder="@(Question.Options.Any() ? Question.Options.ElementAt(0).OptionValue : "")" @bind-Value="Response.Answers.ElementAt(0).AnswerValue" />
+<InputText class="form-control" placeholder="@(Question.Options.Any() ? Question.Options.ElementAt(0).OptionValue : "")" @bind-Value="Response.Feedback" />
 
 @code {
     [Parameter]

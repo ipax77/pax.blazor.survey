@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -11,6 +12,7 @@ using pax.blazor.survey.Areas.Identity;
 using pax.blazor.survey.Data;
 using pax.blazor.survey.Db;
 using pax.blazor.survey.Services;
+using System.Globalization;
 
 namespace pax.blazor.survey
 {
@@ -39,8 +41,10 @@ namespace pax.blazor.survey
             services.AddDatabaseDeveloperPageExceptionFilter();
             services.AddDbContext<SurveyContext>(options => options
                 .EnableSensitiveDataLogging()
+                //.ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))
                 .UseSqlServer(
-                    Configuration.GetConnectionString("ApplicationConnection")));
+                    //Configuration.GetConnectionString("ApplicationConnection")));
+                    Configuration.GetConnectionString("DockerConnection")));
             services.AddScoped<DbService>();
             services.AddScoped<ResultService>();
             services.AddHttpContextAccessor();
@@ -49,6 +53,9 @@ namespace pax.blazor.survey
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, SurveyContext surveyContext, ApplicationDbContext applicationDbContext, UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration conf)
         {
+            CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
+            CultureInfo.DefaultThreadCurrentUICulture = CultureInfo.InvariantCulture;
+
             // Create and migrate Databases
             //surveyContext.Database.EnsureDeleted();
             //surveyContext.Database.Migrate();

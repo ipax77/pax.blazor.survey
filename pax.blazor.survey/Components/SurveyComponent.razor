@@ -236,7 +236,7 @@
     {
         Question question = new Question();
         question.Surveys = new List<Survey>() { Survey };
-        question.Options = new List<Option>() { new Option() };
+        question.Options = new List<Option>() { new Option() { Pos = 1 } };
         Survey.Questions.Add(question);
         question.Pos = Survey.Questions.Count;
         ManagePage.Update(Survey);

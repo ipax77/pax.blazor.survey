@@ -10,6 +10,7 @@
         <p class="col">@context.Title</p>
         <p class="col">@context.Questions</p>
         <p class="col">@context.Users</p>
+        <span role="button" class="btn btn-danger" @onclick:stopPropagation @onclick="e => Delete(context.ID)">Delete</span>
         <span role="button" class="btn btn-success" @onclick:stopPropagation @onclick="e => Result(context.ID)">Result</span>
         <span role="button" class="btn btn-warning" @onclick:stopPropagation @onclick="e => Seed(context.ID)">Seed</span>
     </div>
@@ -71,6 +72,11 @@
     {
         Survey survey = await _db.GetSurveyAsync(id);
         await _db.SeedSurvey(survey);
+    }
+
+    public async void Delete(int id)
+    {
+        await _db.DeleteSurvey(id);
     }
 
 }

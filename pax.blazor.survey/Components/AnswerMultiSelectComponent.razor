@@ -6,10 +6,12 @@
 @for (int i = 0; i < Question.Options.Count; i++)
 {
     int j = i;
+    Option qoption = Question.Options.First(f => f.Pos == j + 1);
+    Answer ranswer = Response.Answers.First(f => f.Pos == j + 1);
     <div class="col">
         <label>
-            <InputCheckbox @bind-Value="Response.Answers.ElementAt(j).AnswerBool" />
-            @Question.Options.ElementAt(j).OptionValue
+            <InputCheckbox @bind-Value="ranswer.Selected" />
+            @qoption.OptionValue
         </label>
     </div>
 }
@@ -32,11 +34,13 @@
     protected override void OnParametersSet()
     {
         Response = _db.GetResponse(Survey, Question, User);
-        
+
         // fail safe for preview - TODO
+        if (Response.Answers == null)
+            Response.Answers = new List<Answer>();
         while (Response.Answers.Count < Question.Options.Count)
-            Response.Answers.Add(new Answer() { Response = Response });
-        
+            Response.Answers.Add(new Answer() { Pos = Response.Answers.Count + 1, Response = Response });
+
         base.OnParametersSet();
     }
 

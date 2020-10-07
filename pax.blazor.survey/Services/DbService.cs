@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using pax.blazor.survey.Db;
 using pax.blazor.survey.Migrations;
@@ -45,7 +46,17 @@ namespace pax.blazor.survey.Services
         /// </summary>
         public async Task<Survey> GetSurveyAsync(int id)
         {
-            Survey survey = await context.Surveys.Include(i => i.Questions).ThenInclude(k => k.Options).Include(j => j.Users).FirstOrDefaultAsync(f => f.ID == id);
+            Survey survey = await context.Surveys.FindAsync(id);
+
+            if (survey == null)
+                return null;
+
+            await context.Entry(survey)
+                .Collection(b => b.Questions)
+                .Query()
+                .Include(i => i.Options)
+                .LoadAsync();
+
             return survey;
         }
 
@@ -56,9 +67,19 @@ namespace pax.blazor.survey.Services
         {
             Survey survey = null;
             if (String.IsNullOrEmpty(url))
-                survey = await context.Surveys.Include(i => i.Questions).ThenInclude(k => k.Options).Include(j => j.Users).FirstOrDefaultAsync();
+                survey = await context.Surveys.FirstOrDefaultAsync();
             else
-                survey = await context.Surveys.Include(i => i.Questions).ThenInclude(k => k.Options).Include(j => j.Users).FirstOrDefaultAsync(f => f.SubUrl == url);
+                survey = await context.Surveys.FirstOrDefaultAsync(f => f.SubUrl == url);
+
+            if (survey == null)
+                return null;
+
+            await context.Entry(survey)
+                .Collection(b => b.Questions)
+                .Query()
+                .Include(i => i.Options)
+                .LoadAsync();
+
             return survey;
         }
 
@@ -94,6 +115,9 @@ namespace pax.blazor.survey.Services
         /// </summary>
         public async Task<User> GetUserAsync(Survey survey, string username, string ip, string agent)
         {
+            if (survey == null)
+                return null;
+
             string name = String.Empty;
             if (!String.IsNullOrEmpty(username))
                 name = username;
@@ -107,10 +131,18 @@ namespace pax.blazor.survey.Services
                 return null;
 
             User user = null;
-            user = await context.Users.Include(s => s.Surveys).Include(r => r.Responses).ThenInclude(t => t.Answers).FirstOrDefaultAsync(x => x.Name == name);
+            user = await context.Users.FirstOrDefaultAsync(x => x.Name == name);
             if (user == null)
             {
                 user = new User() { Name = name };
+            } else
+            {
+                await context.Entry(user)
+                    .Collection(b => b.Surveys)
+                    .LoadAsync();
+                await context.Entry(user)
+                    .Collection(b => b.Responses)
+                    .LoadAsync();
             }
             if (user.Surveys == null)
                 user.Surveys = new List<Survey>() { survey };
@@ -129,21 +161,29 @@ namespace pax.blazor.survey.Services
         /// </summary>
         public Response GetResponse(Survey survey, Question question, User user)
         {
-            Response response = user.Responses.FirstOrDefault(f => f.Survey == survey && f.Question == question);
+            Response response = user.Responses.FirstOrDefault(x => x.Survey == survey && x.Question == question);
+            if (response != null)
+                return response;
+
+            //response = context.Responses.FirstOrDefault(f => f.User == user && f.Survey == survey && f.Question == question);
             if (response == null)
             {
                 response = new Response();
                 response.Survey = survey;
                 response.User = user;
                 response.Question = question;
-
                 response.Answers = question.Type switch
                 {
-                    (int)QuestionType.MultiSelect => new List<Answer>(question.Options.Select(s => new Answer() { Pos = s.Pos, Response = response })),
-                    _ => new List<Answer>() { new Answer() { Pos = 1, Response = response } }
+                    (int)QuestionType.MultiSelect => new List<Answer>(question.Options.Select(s => new Answer() { Pos = s.Pos, Response = response, Option = s })),
+                    _ => null
                 };
                 user.Responses.Add(response);
             }
+            else
+                context.Entry(response)
+                    .Collection(c => c.Answers)
+                    .Load();
+
             return response;
         }
 
@@ -160,10 +200,10 @@ namespace pax.blazor.survey.Services
             return true;
         }
 
-        public async Task SeedSurvey(Survey survey, int count = 10000)
+        public async Task SeedSurvey(Survey survey, int count = 1000)
         {
             string ip = "::1";
-            string agent = "testagent";
+            string agent = "testagent2";
             Random rng = new Random();
 
             for (int i = 0; i < count; i++)
@@ -175,7 +215,10 @@ namespace pax.blazor.survey.Services
                 {
                     Response response = GetResponse(survey, question, user);
                     if (question.Type == (int)QuestionType.Text || question.Type == (int)QuestionType.LongText)
-                        response.Answers.First().AnswerValue = "Und es war Sommer";
+                    {
+                        response.Pos = 1;
+                        response.Feedback = "Und es war Sommer";
+                    }
                     else if (question.Type == (int)QuestionType.MultiSelect)
                     {
                         int selectcount = rng.Next(1, question.Options.Count);
@@ -183,7 +226,7 @@ namespace pax.blazor.survey.Services
                         for (int j = 0; j < selectcount; j++)
                         {
                             int select = rng.Next(options.Count);
-                            response.Answers.First(f => f.Pos == options[select]).AnswerBool = true;
+                            response.Answers.First(f => f.Pos == options[select]).Selected = true;
                             options.Remove(options[select]);
                         }
                     }
@@ -192,7 +235,7 @@ namespace pax.blazor.survey.Services
                         int selectcount = rng.Next(1, question.Options.Count);
                         List<int> options = new List<int>(question.Options.Select(s => s.Pos));
                         int select = rng.Next(options.Count);
-                        response.Answers.First().AnswerValue = question.Options.First(f => f.Pos == options[select]).OptionValue;
+                        response.Pos = question.Options.First(f => f.Pos == options[select]).Pos;
                     }
                     if (response.ID == 0)
                         context.Responses.Add(response);
@@ -202,6 +245,13 @@ namespace pax.blazor.survey.Services
                 if (i % 100 == 0)
                     await context.SaveChangesAsync();
             }
+            await context.SaveChangesAsync();
+        }
+
+        public async Task DeleteSurvey(int id)
+        {
+            Survey survey = await context.Surveys.Include(i => i.Questions).Include(j => j.Responses).ThenInclude(i => i.Answers).FirstOrDefaultAsync(i => i.ID == id);
+            context.Surveys.Remove(survey);
             await context.SaveChangesAsync();
         }
 

@@ -1,0 +1,15 @@
+﻿<header class="sticky-top">
+    <div class="progress">
+        <div class="progress-bar progress-bar-striped bg-success" role="progressbar" style="width: @progress%" aria-valuenow="@progress" aria-valuemin="0" aria-valuemax="100">@MathF.Round(progress, 2)%</div>
+    </div>
+</header>
+
+@code {
+    float progress = 0;
+
+    public void Update(float progress)
+    {
+        this.progress = progress;
+        StateHasChanged();
+    }
+}

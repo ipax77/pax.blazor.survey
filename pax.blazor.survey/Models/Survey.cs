@@ -44,12 +44,15 @@ namespace pax.blazor.survey.Models
         public int ID { get; set; }
         public int Pos { get; set; }
         public string OptionValue { get; set; }
+        public ICollection<Answer> Answers { get; set; }
         public ICollection<Question> Questions { get; set; }
     }
 
     public class Response
     {
         public int ID { get; set; }
+        public int Pos { get; set; }
+        public bool Selected { get; set; }
         public string Feedback { get; set; }
         public User User { get; set; }
         public Question Question { get; set; }
@@ -70,10 +73,8 @@ namespace pax.blazor.survey.Models
         public int ID { get; set; }
         public int Pos { get; set; }
         public string AnswerValue { get; set; }
-        public bool AnswerBool { get; set; }
-        public DateTime? AnswerDate { get; set; } = null;
-        public int AnswerInt { get; set; }
-        public float AnswerFloat { get; set; }
+        public bool Selected { get; set; }
+        public Option Option { get; set; }
         public Response Response { get; set; }
     }
 

@@ -1,19 +1,21 @@
 ﻿@using pax.blazor.survey.Models
 @using pax.blazor.survey.Data
 @using pax.blazor.survey.Services
+@using Microsoft.Extensions.Logging 
 @inject DbService _db
+@inject ILogger<AnswerBoolComponent> _logger
 
-<InputRadioGroup @bind-Value="Response.Answers.ElementAt(0).AnswerValue">
+<InputRadioGroup @bind-Value="Response.Pos">
     <div>
         <label>
-            <InputRadio Value="Question.Options.ElementAt(0).OptionValue"></InputRadio>
-            @Question.Options.ElementAt(0).OptionValue
+            <InputRadio Value="Question.Options.First(f => f.Pos == 1).Pos"></InputRadio>
+            @Question.Options.First(f => f.Pos == 1).OptionValue
         </label>
     </div>
     <div>
         <label>
-            <InputRadio Value="Question.Options.ElementAt(1).OptionValue"></InputRadio>
-            @Question.Options.ElementAt(1).OptionValue
+            <InputRadio Value="Question.Options.First(f => f.Pos == 2).Pos"></InputRadio>
+            @Question.Options.First(f => f.Pos == 2).OptionValue
         </label>
     </div>
 </InputRadioGroup>
@@ -35,7 +37,10 @@
 
     protected override void OnParametersSet()
     {
-        Response = _db.GetResponse(Survey, Question, User);
+        _logger.LogInformation("parameter set");
+        
+        if (Response == null)
+            Response = _db.GetResponse(Survey, Question, User);
         base.OnParametersSet();
     }
 

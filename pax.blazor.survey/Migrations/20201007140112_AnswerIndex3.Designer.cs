@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using pax.blazor.survey.Db;
 
 namespace pax.blazor.survey.Migrations
 {
     [DbContext(typeof(SurveyContext))]
-    partial class SurveyContextModelSnapshot : ModelSnapshot
+    [Migration("20201007140112_AnswerIndex3")]
+    partial class AnswerIndex3
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -146,9 +148,6 @@ namespace pax.blazor.survey.Migrations
                         .HasColumnType("int")
                         .UseIdentityColumn();
 
-                    b.Property<string>("Feedback")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int>("Pos")
                         .HasColumnType("int");
 
@@ -165,8 +164,6 @@ namespace pax.blazor.survey.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("ID");
-
-                    b.HasIndex("Pos");
 
                     b.HasIndex("QuestionID");
 

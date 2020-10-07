@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using pax.blazor.survey.Db;
 
 namespace pax.blazor.survey.Migrations
 {
     [DbContext(typeof(SurveyContext))]
-    partial class SurveyContextModelSnapshot : ModelSnapshot
+    [Migration("20201007114716_Answer2")]
+    partial class Answer2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -71,9 +73,6 @@ namespace pax.blazor.survey.Migrations
                         .HasColumnType("int")
                         .UseIdentityColumn();
 
-                    b.Property<string>("AnswerValue")
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<int?>("OptionID")
                         .HasColumnType("int");
 
@@ -90,11 +89,7 @@ namespace pax.blazor.survey.Migrations
 
                     b.HasIndex("OptionID");
 
-                    b.HasIndex("Pos");
-
                     b.HasIndex("ResponseID");
-
-                    b.HasIndex("Selected");
 
                     b.ToTable("Answers");
                 });
@@ -155,9 +150,6 @@ namespace pax.blazor.survey.Migrations
                     b.Property<int?>("QuestionID")
                         .HasColumnType("int");
 
-                    b.Property<bool>("Selected")
-                        .HasColumnType("bit");
-
                     b.Property<int?>("SurveyID")
                         .HasColumnType("int");
 
@@ -165,8 +157,6 @@ namespace pax.blazor.survey.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("ID");
-
-                    b.HasIndex("Pos");
 
                     b.HasIndex("QuestionID");
 
