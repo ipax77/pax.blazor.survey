@@ -3,6 +3,9 @@
 @inject DbService _db
 @implements IDisposable
 
+@{
+    int tabindex = 0;
+}
 <EditForm EditContext="editContext" OnValidSubmit="@( async() => HandleValidSubmit() )" OnInvalidSubmit="@( async() => HandleInvalidSubmit() )">
     <DataAnnotationsValidator />
     <ValidationSummary />
@@ -13,7 +16,7 @@
                 Title:
             </label>
             <div class="col-sm">
-                <InputText id="title" class="form-control" @bind-Value="Survey.Title" />
+                <InputText id="title" class="form-control" tabindex="@(++tabindex)" @bind-Value="Survey.Title" />
                 <ValidationMessage For="@(() => Survey.Title)"></ValidationMessage>
             </div>
         </div>
@@ -22,8 +25,17 @@
                 Description:
             </label>
             <div class="col-sm">
-                <InputTextArea id="desc" class="form-control" @bind-Value="Survey.Description" />
+                <InputTextArea id="desc" class="form-control" tabindex="@(++tabindex)" @bind-Value="Survey.Description" />
                 <ValidationMessage For="@(() => Survey.Description)"></ValidationMessage>
+            </div>
+        </div>
+        <div class="form-group form-row">
+            <label class="col-sm-5 col-md-5 col-lg-4 col-xl-3 col-form-label text-muted" for="suburl">
+                Survey short Name (for Url):
+            </label>
+            <div class="col-sm">
+                <InputTextArea id="suburl" class="form-control" tabindex="@(++tabindex)" @bind-Value="Survey.SubUrl" />
+                <ValidationMessage For="@(() => Survey.SubUrl)"></ValidationMessage>
             </div>
         </div>
         <div class="form-group form-row">
@@ -31,7 +43,7 @@
                 Allow anyonymouse/not authorized users?
             </label>
             <div class="col-sm">
-                <InputCheckbox id="desc" class="form-check mt-3" @bind-Value="Survey.AllowAnonymouse" />
+                <InputCheckbox id="desc" class="form-check mt-3" tabindex="@(++tabindex)" @bind-Value="Survey.AllowAnonymouse" />
                 <ValidationMessage For="@(() => Survey.AllowAnonymouse)"></ValidationMessage>
             </div>
         </div>
@@ -40,7 +52,7 @@
                 Show survey progress to users?
             </label>
             <div class="col-sm">
-                <InputCheckbox id="desc" class="form-check mt-3" @bind-Value="Survey.ShowProgress" />
+                <InputCheckbox id="desc" class="form-check mt-3" tabindex="@(++tabindex)" @bind-Value="Survey.ShowProgress" />
                 <ValidationMessage For="@(() => Survey.ShowProgress)"></ValidationMessage>
             </div>
         </div>
@@ -49,7 +61,7 @@
                 Allow users to see basic result?
             </label>
             <div class="col-sm">
-                <InputCheckbox id="desc" class="form-check mt-3" @bind-Value="Survey.ShowResult" />
+                <InputCheckbox id="desc" class="form-check mt-3" tabindex="@(++tabindex)" @bind-Value="Survey.ShowResult" />
                 <ValidationMessage For="@(() => Survey.ShowResult)"></ValidationMessage>
             </div>
         </div>
@@ -58,7 +70,7 @@
                 Expire Date:
             </label>
             <div class="col-sm">
-                <InputDate id="exp" class="form-control" @bind-Value="Survey.Expire" />
+                <InputDate id="exp" class="form-control" tabindex="@(++tabindex)" @bind-Value="Survey.Expire" />
                 <ValidationMessage For="@(() => Survey.Description)"></ValidationMessage>
             </div>
         </div>
@@ -89,7 +101,7 @@
                         Question:
                     </label>
                     <div class="@fmFormInput">
-                        <InputTextArea id="q@j" class="form-control" @bind-Value="Survey.Questions.ElementAt(j).Interview" />
+                        <InputTextArea id="q@j" class="form-control" tabindex="@(++tabindex)" @bind-Value="Survey.Questions.ElementAt(j).Interview" />
                         <ValidationMessage For="@(() => Survey.Questions.ElementAt(j).Interview)"></ValidationMessage>
                     </div>
                 </div>
@@ -98,7 +110,7 @@
                         Question type:
                     </label>
                     <div class="@fmFormInput">
-                        <InputSelect class="form-control" @bind-Value="@Survey.Questions.ElementAt(j).Type">
+                        <InputSelect class="form-control" tabindex="@(++tabindex)" @bind-Value="@Survey.Questions.ElementAt(j).Type">
                             <option value="" disabled selected>Select question type</option>
                             @foreach (QuestionType qtype in Enum.GetValues(typeof(QuestionType)).Cast<QuestionType>())
                                 {
@@ -117,7 +129,7 @@
                                     Placeholder Text:
                                 </label>
                                 <div class="@fmFormInput">
-                                    <InputText class="form-control" @bind-Value="Survey.Questions.ElementAt(j).Options.ElementAt(0).OptionValue" />
+                                    <InputText class="form-control" tabindex="@(++tabindex)" @bind-Value="Survey.Questions.ElementAt(j).Options.ElementAt(0).OptionValue" />
                                     <ValidationMessage For="@(() => Survey.Questions.ElementAt(j).Options.ElementAt(0).OptionValue)"></ValidationMessage>
                                 </div>
                             </div>
@@ -132,7 +144,7 @@
                                     First option:
                                 </label>
                                 <div class="@fmFormInput">
-                                    <InputText class="form-control" @bind-Value="Survey.Questions.ElementAt(j).Options.ElementAt(0).OptionValue" />
+                                    <InputText class="form-control" tabindex="@(++tabindex)" @bind-Value="Survey.Questions.ElementAt(j).Options.ElementAt(0).OptionValue" />
                                     <ValidationMessage For="@(() => Survey.Questions.ElementAt(j).Options.ElementAt(0).OptionValue)"></ValidationMessage>
                                 </div>
                             </div>
@@ -143,7 +155,7 @@
                                     Second option:
                                 </label>
                                 <div class="@fmFormInput">
-                                    <InputText class="form-control" @bind-Value="Survey.Questions.ElementAt(j).Options.ElementAt(1).OptionValue" />
+                                    <InputText class="form-control" tabindex="@(++tabindex)" @bind-Value="Survey.Questions.ElementAt(j).Options.ElementAt(1).OptionValue" />
                                     <ValidationMessage For="@(() => Survey.Questions.ElementAt(j).Options.ElementAt(1).OptionValue)"></ValidationMessage>
                                 </div>
                             </div>
@@ -155,45 +167,45 @@
                         for (int k = 0; k < Survey.Questions.ElementAt(j).Options.Count; k++)
                         {
                             int l = k;
-                <li class="list-group-item">
+                            <li class="list-group-item">
 
-                    <div class="@fmFormContainer">
-                        <div class="@fmFormLabel">
-                            <div class="d-flex  flex-row">
-                                <div class="flex-column">
-                                    <div class="btn-group">
-                                        <span type="button" class="oi oi-x text-danger" @onclick="@(() => RemoveOption(j, l))">-</span>
-                                        <span type="button" class="oi oi-arrow-circle-top text-primary" @onclick="@(() => MoveOptionUp(j, l))">-</span>
-                                        <span type="button" class="oi oi-arrow-circle-bottom text-primary" @onclick="@(() => MoveOptionDown(j, l))">-</span>
+                                <div class="@fmFormContainer">
+                                    <div class="@fmFormLabel">
+                                        <div class="d-flex  flex-row">
+                                            <div class="flex-column">
+                                                <div class="btn-group">
+                                                    <span type="button" class="oi oi-x text-danger" @onclick="@(() => RemoveOption(j, l))">-</span>
+                                                    <span type="button" class="oi oi-arrow-circle-top text-primary" @onclick="@(() => MoveOptionUp(j, l))">-</span>
+                                                    <span type="button" class="oi oi-arrow-circle-bottom text-primary" @onclick="@(() => MoveOptionDown(j, l))">-</span>
+                                                </div>
+                                            </div>
+                                            <div class="flex-column ml-2">
+                                                <label class="text-muted">Option @(Survey.Questions.ElementAt(j).Options.ElementAt(l).Pos):</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="@fmFormInput">
+                                        <InputText class="form-control" tabindex="@(++tabindex)" @bind-Value="Survey.Questions.ElementAt(j).Options.ElementAt(l).OptionValue" />
+                                        <ValidationMessage For="@(() => Survey.Questions.ElementAt(j).Options.ElementAt(l).OptionValue)"></ValidationMessage>
                                     </div>
                                 </div>
-                                <div class="flex-column ml-2">
-                                    <label class="text-muted">Option @(Survey.Questions.ElementAt(j).Options.ElementAt(l).Pos):</label>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="@fmFormInput">
-                            <InputText class="form-control" @bind-Value="Survey.Questions.ElementAt(j).Options.ElementAt(l).OptionValue" />
-                            <ValidationMessage For="@(() => Survey.Questions.ElementAt(j).Options.ElementAt(l).OptionValue)"></ValidationMessage>
-                        </div>
-                    </div>
-                </li>
+                            </li>
                         }
-                        
-                <li class="list-unstyled">
-                    <span type="button" class="oi oi-plus text-success" @onclick="@(() => AddOption(j))"></span> Add Option
-                </li>
-                        
+
+                        <li class="list-unstyled">
+                            <span type="button" class="oi oi-plus text-success" @onclick="@(() => AddOption(j))"></span> Add Option
+                        </li>
+
                     }
                 </ul>
-                
+
             </div>
-            </div>
+        </div>
     }
     <div>
         <h5><span type="button" class="oi oi-plus text-success" @onclick="AddInterview"></span> Add Question</h5>
     </div>
-    <button type="submit" class="btn btn-primary">Save</button>
+    <button type="submit" class="btn btn-primary" tabindex="@(++tabindex)">Save</button>
 </EditForm>
 
 
@@ -263,7 +275,7 @@
 
     void AddOption(int i)
     {
-        Survey.Questions.ElementAt(i).Options.Add(new Option() { Pos = Survey.Questions.ElementAt(i).Options.Count + 1, Questions = new List<Question>() { Survey.Questions.ElementAt(i) } } );
+        Survey.Questions.ElementAt(i).Options.Add(new Option() { Pos = Survey.Questions.ElementAt(i).Options.Count + 1, Questions = new List<Question>() { Survey.Questions.ElementAt(i) } });
     }
 
     void RemoveOption(int x, int j)
@@ -304,7 +316,7 @@
             QuestionType questionType = (QuestionType)question.Type;
             if (!(questionType == QuestionType.Text || questionType == QuestionType.LongText))
                 while (question.Options.Count < 2)
-                    question.Options.Add(new Option() { Pos = question.Options.Count } );
+                    question.Options.Add(new Option() { Pos = question.Options.Count + 1 });
         }
         ManagePage.Update(Survey);
     }

@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using pax.blazor.survey.Db;
+using pax.blazor.survey.Migrations;
 using pax.blazor.survey.Models;
 using System;
 using System.Collections.Generic;
@@ -123,7 +124,33 @@ namespace pax.blazor.survey.Services
 
             return user;
         }
+        /// <summary>
+        /// Gets or creates a Response Database Object
+        /// </summary>
+        public Response GetResponse(Survey survey, Question question, User user)
+        {
+            Response response = user.Responses.FirstOrDefault(f => f.Survey == survey && f.Question == question);
+            if (response == null)
+            {
+                response = new Response();
+                response.Survey = survey;
+                response.User = user;
+                response.Question = question;
 
+                response.Answers = question.Type switch
+                {
+                    (int)QuestionType.MultiSelect => new List<Answer>(question.Options.Select(s => new Answer() { Pos = s.Pos, Response = response })),
+                    _ => new List<Answer>() { new Answer() { Pos = 1, Response = response } }
+                };
+                user.Responses.Add(response);
+            }
+            return response;
+        }
+
+
+        /// <summary>
+        /// Saves the User
+        /// </summary>
         public async Task<bool> SaveUserAsync(User user)
         {
             if (user.ID == 0)
@@ -131,6 +158,51 @@ namespace pax.blazor.survey.Services
 
             await context.SaveChangesAsync();
             return true;
+        }
+
+        public async Task SeedSurvey(Survey survey, int count = 10000)
+        {
+            string ip = "::1";
+            string agent = "testagent";
+            Random rng = new Random();
+
+            for (int i = 0; i < count; i++)
+            {
+                string username = "TestUser" + i;
+                User user = await GetUserAsync(survey, username, ip, agent);
+
+                foreach (Question question in survey.Questions)
+                {
+                    Response response = GetResponse(survey, question, user);
+                    if (question.Type == (int)QuestionType.Text || question.Type == (int)QuestionType.LongText)
+                        response.Answers.First().AnswerValue = "Und es war Sommer";
+                    else if (question.Type == (int)QuestionType.MultiSelect)
+                    {
+                        int selectcount = rng.Next(1, question.Options.Count);
+                        List<int> options = new List<int>(question.Options.Select(s => s.Pos));
+                        for (int j = 0; j < selectcount; j++)
+                        {
+                            int select = rng.Next(options.Count);
+                            response.Answers.First(f => f.Pos == options[select]).AnswerBool = true;
+                            options.Remove(options[select]);
+                        }
+                    }
+                    else
+                    {
+                        int selectcount = rng.Next(1, question.Options.Count);
+                        List<int> options = new List<int>(question.Options.Select(s => s.Pos));
+                        int select = rng.Next(options.Count);
+                        response.Answers.First().AnswerValue = question.Options.First(f => f.Pos == options[select]).OptionValue;
+                    }
+                    if (response.ID == 0)
+                        context.Responses.Add(response);
+                }
+                if (user.ID == 0)
+                    context.Users.Add(user);
+                if (i % 100 == 0)
+                    await context.SaveChangesAsync();
+            }
+            await context.SaveChangesAsync();
         }
 
         public static string CreateMD5(string input)

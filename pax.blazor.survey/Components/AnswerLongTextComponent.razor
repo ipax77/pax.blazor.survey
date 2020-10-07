@@ -1,6 +1,7 @@
 ﻿@using pax.blazor.survey.Models
 @using pax.blazor.survey.Data
-
+@using pax.blazor.survey.Services
+@inject DbService _db
 
 <InputTextArea class="form-control" placeholder="@(Question.Options.ElementAt(0).OptionValue)" @bind-Value="Response.Answers.ElementAt(0).AnswerValue" />
 
@@ -21,16 +22,7 @@
 
     protected override void OnParametersSet()
     {
-        Response = User.Responses.FirstOrDefault(f => f.Survey == Survey && f.Question == Question);
-        if (Response == null)
-        {
-            Response = new Response();
-            Response.Survey = Survey;
-            Response.User = User;
-            Response.Question = Question;
-            Response.Answers = new List<Answer>() { new Answer() { Response = Response } };
-            User.Responses.Add(Response);
-        }
+        Response = _db.GetResponse(Survey, Question, User);
         base.OnParametersSet();
     }
 

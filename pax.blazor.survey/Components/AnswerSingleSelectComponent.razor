@@ -1,17 +1,18 @@
 ﻿@using pax.blazor.survey.Models
 @using pax.blazor.survey.Data
-
+@using pax.blazor.survey.Services
+@inject DbService _db
 
 <InputRadioGroup @bind-Value="Response.Answers.ElementAt(0).AnswerValue">
     @for (int i = 0; i < Question.Options.Count(); i++)
     {
         int j = i;
-    <div>
-        <label>
-            <InputRadio Value="Question.Options.ElementAt(j).OptionValue"></InputRadio>
-            @Question.Options.ElementAt(j).OptionValue
-        </label>
-    </div>
+        <div>
+            <label>
+                <InputRadio Value="Question.Options.ElementAt(j).OptionValue"></InputRadio>
+                @Question.Options.ElementAt(j).OptionValue
+            </label>
+        </div>
     }
 </InputRadioGroup>
 
@@ -32,16 +33,7 @@
 
     protected override void OnParametersSet()
     {
-        Response = User.Responses.FirstOrDefault(f => f.Survey == Survey && f.Question == Question);
-        if (Response == null)
-        {
-            Response = new Response();
-            Response.Survey = Survey;
-            Response.User = User;
-            Response.Question = Question;
-            Response.Answers = new List<Answer>() { new Answer() { Response = Response } };
-            User.Responses.Add(Response);
-        }
+        Response = _db.GetResponse(Survey, Question, User);
         base.OnParametersSet();
     }
 

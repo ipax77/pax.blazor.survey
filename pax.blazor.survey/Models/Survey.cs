@@ -12,13 +12,13 @@ namespace pax.blazor.survey.Models
         [Required]
         public string Title { get; set; }
         public string Description { get; set; }
+        [Required]
         public string SubUrl { get; set; }
         public bool AllowAnonymouse { get; set; }
         public bool ShowProgress { get; set; }
         public bool ShowResult { get; set; }
         public DateTime Created { get; set; }
         public DateTime Expire { get; set; } = DateTime.Today.AddDays(30);
-        [ValidateEachItem]
         public ICollection<Question> Questions { get; set; }
         public ICollection<User> Users { get; set; }
         public ICollection<Response> Responses { get; set; }

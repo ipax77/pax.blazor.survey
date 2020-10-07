@@ -83,6 +83,11 @@
         }
     }
 
+    public void Update()
+    {
+        StateHasChanged();
+    }
+
     void HandleFieldChange(object sender, FieldChangedEventArgs e)
     {
         if (Survey.ShowProgress)

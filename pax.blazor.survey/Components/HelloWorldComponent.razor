@@ -1,0 +1,13 @@
+﻿<h3 @onclick="OnSomething">Hello world from @Name</h3>
+
+
+@code {
+    [Parameter]
+    public string Name { get; set; }
+
+    [Parameter]
+    public EventCallback<MouseEventArgs> OnClick { get; set; }
+
+    [Parameter]
+    public EventCallback OnSomething { get; set; }
+}

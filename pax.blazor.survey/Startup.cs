@@ -42,6 +42,7 @@ namespace pax.blazor.survey
                 .UseSqlServer(
                     Configuration.GetConnectionString("ApplicationConnection")));
             services.AddScoped<DbService>();
+            services.AddScoped<ResultService>();
             services.AddHttpContextAccessor();
         }
 

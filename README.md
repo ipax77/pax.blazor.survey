@@ -1,4 +1,4 @@
-## Blazor ASP .Net Core 5 Survey management
+## Blazor ASP .Net Core 5 Survey
 
 Create custom surveys with your own database
 

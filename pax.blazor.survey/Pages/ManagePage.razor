@@ -28,8 +28,10 @@ else
             <SurveyComponent Survey="Survey" ManagePage="this"></SurveyComponent>
         </div>
         <div class="col">
-            <h4 class="text-black-50">Preview</h4>
-            <AnswerComponent Survey="Survey" User="new User() { Responses = new List<Response>() }" isPreview="true"></AnswerComponent>
+            <div class="position-sticky sticky-top">
+                <h4 class="text-black-50">Preview</h4>
+                <AnswerComponent @ref="AnswerComponent" Survey="Survey" User="new User() { Responses = new List<Response>() }" isPreview="true"></AnswerComponent>
+            </div>
         </div>
     </div>
     <SurveyListComponent Survey="Survey" ManagePage="this" surveyList="surveyList"></SurveyListComponent>
@@ -43,6 +45,7 @@ else
     Survey Survey;
     List<SurveyListItem> surveyList = new List<SurveyListItem>();
     bool isLoading = true;
+    AnswerComponent AnswerComponent;
 
     protected override async Task OnInitializedAsync()
     {
@@ -55,7 +58,7 @@ else
         else
         {
             Survey = new Survey();
-            Survey.Questions = new List<Question>() { new Question() { Pos = 1, Options = new List<Option>() { new Option() } } };
+            Survey.Questions = new List<Question>() { new Question() { Pos = 1, Options = new List<Option>() { new Option() { Pos = 1 } } } };
         }
         isLoading = false;
     }
@@ -63,12 +66,13 @@ else
     public void Update(Survey survey)
     {
         Survey = survey;
-        StateHasChanged();
+        AnswerComponent.Update();
+        //StateHasChanged();
     }
 
     void CreateNew()
     {
         Survey = new Survey();
-        Survey.Questions = new List<Question>() { new Question() { Pos = 1, Options = new List<Option>() { new Option() } } };
+        Survey.Questions = new List<Question>() { new Question() { Pos = 1, Options = new List<Option>() { new Option() { Pos = 1 } } } };
     }
 }

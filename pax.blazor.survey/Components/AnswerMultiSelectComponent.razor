@@ -1,16 +1,17 @@
 ﻿@using pax.blazor.survey.Models
 @using pax.blazor.survey.Data
+@using pax.blazor.survey.Services
+@inject DbService _db
 
-
-@for (int i = 0; i < Question.Options.Count(); i++)
+@for (int i = 0; i < Question.Options.Count; i++)
 {
     int j = i;
-<div class="col">
-    <label>
-        <InputCheckbox @bind-Value="Response.Answers.ElementAt(j).AnswerBool" />
-        @Question.Options.ElementAt(j).OptionValue
-    </label>
-</div>
+    <div class="col">
+        <label>
+            <InputCheckbox @bind-Value="Response.Answers.ElementAt(j).AnswerBool" />
+            @Question.Options.ElementAt(j).OptionValue
+        </label>
+    </div>
 }
 
 @code {
@@ -30,18 +31,12 @@
 
     protected override void OnParametersSet()
     {
-        Response = User.Responses.FirstOrDefault(f => f.Survey == Survey && f.Question == Question);
-        if (Response == null)
-        {
-            Response = new Response();
-            Response.Survey = Survey;
-            Response.User = User;
-            Response.Question = Question;
-            Response.Answers = new List<Answer>();
-            for (int i = 0; i < Question.Options.Count; i++)
-                Response.Answers.Add(new Answer() { Pos = Question.Options.ElementAt(i).Pos,  Response = Response });
-            User.Responses.Add(Response);
-        }
+        Response = _db.GetResponse(Survey, Question, User);
+        
+        // fail safe for preview - TODO
+        while (Response.Answers.Count < Question.Options.Count)
+            Response.Answers.Add(new Answer() { Response = Response });
+        
         base.OnParametersSet();
     }
 

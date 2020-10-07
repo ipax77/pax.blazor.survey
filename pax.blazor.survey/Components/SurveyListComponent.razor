@@ -2,6 +2,7 @@
 @using pax.blazor.survey.Services
 @using Microsoft.AspNetCore.Components.Web.Virtualization
 @inject DbService _db
+@inject ResultService _res
 
 <Virtualize Items="surveyList">
     <div class="d-flex pointer" @onclick="(() => ChangeSurvey(context.ID))">
@@ -9,6 +10,8 @@
         <p class="col">@context.Title</p>
         <p class="col">@context.Questions</p>
         <p class="col">@context.Users</p>
+        <span role="button" class="btn btn-success" @onclick:stopPropagation @onclick="e => Result(context.ID)">Result</span>
+        <span role="button" class="btn btn-warning" @onclick:stopPropagation @onclick="e => Seed(context.ID)">Seed</span>
     </div>
 </Virtualize>
 
@@ -56,6 +59,18 @@
             ManagePage.Update(Survey);
         if (SurveyPage != null)
             SurveyPage.Update(Survey);
+    }
+
+    public async void Result(int id)
+    {
+        Survey survey = await _db.GetSurveyAsync(id);
+        await _res.CreateResult(survey);
+    }
+
+    public async void Seed(int id)
+    {
+        Survey survey = await _db.GetSurveyAsync(id);
+        await _db.SeedSurvey(survey);
     }
 
 }
