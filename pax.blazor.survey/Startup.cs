@@ -39,15 +39,21 @@ namespace pax.blazor.survey
             services.AddServerSideBlazor();
             services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<IdentityUser>>();
             services.AddDatabaseDeveloperPageExceptionFilter();
-            services.AddDbContext<SurveyContext>(options => options
-                .EnableSensitiveDataLogging()
-                //.ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))
-                .UseSqlServer(
-                    //Configuration.GetConnectionString("ApplicationConnection")));
-                    Configuration.GetConnectionString("DockerConnection")));
+            //services.AddDbContext<SurveyContext>(options => options
+            //    .EnableSensitiveDataLogging()
+            //    //.ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))
+            //    .UseSqlServer(
+            //        //Configuration.GetConnectionString("ApplicationConnection")));
+            //        Configuration.GetConnectionString("DockerConnection")));
+            services.AddDbContext<SurveyContext>(options =>
+                options.UseSqlite(
+                    Configuration.GetConnectionString("SQLiteConnection")
+            ));
             services.AddScoped<DbService>();
             services.AddScoped<ResultService>();
             services.AddHttpContextAccessor();
+            services.AddMemoryCache();
+            services.AddSingleton<ReloadService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

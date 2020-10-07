@@ -3,8 +3,9 @@
 Create custom surveys with your own database
 
 ### TODO
+- Multiselect Answers mimimize
 - Test Project
 - Survey Results
-- Reload/Connection lost catch
 - Authorization
 - Answer types (integer, float, date)
+

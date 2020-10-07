@@ -1,6 +1,7 @@
 ﻿@using pax.blazor.survey.Models
 @using pax.blazor.survey.Services
 @inject DbService _db
+@inject ReloadService _reload
 @implements IDisposable
 
 @{
@@ -318,12 +319,13 @@
                 while (question.Options.Count < 2)
                     question.Options.Add(new Option() { Pos = question.Options.Count + 1 });
         }
+        _reload.SetSurvey(Survey, ManagePage.AuthName);
         ManagePage.Update(Survey);
     }
 
     private async Task HandleValidSubmit()
     {
-        bool success = await _db.SaveSurveyAsync(Survey);
+        bool success = await _db.SaveSurveyAsync(Survey, ManagePage.AuthName);
         if (success == true)
             ManagePage.Update(Survey);
     }

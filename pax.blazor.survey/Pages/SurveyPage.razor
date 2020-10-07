@@ -27,8 +27,6 @@ else
     if (Survey != null && User != null)
     {
         <AnswerComponent Survey="Survey" User="User"></AnswerComponent>
-        <br />
-        @*<SurveyListComponent Survey="Survey" SurveyPage="this" surveyList="surveyList"></SurveyListComponent>*@
     }
     else
     {
@@ -48,12 +46,13 @@ else
     protected override async Task OnInitializedAsync()
     {
         string UserName = await CheckAuth();
-        Survey = await _db.GetSurveyAsync(SurveyUrl);
-        //surveyList = await _db.GetSurveysListAsync();
         string IPAddress = _httpContextAccssor.HttpContext.Connection.RemoteIpAddress.ToString();
         string UserAgent = _httpContextAccssor.HttpContext.Request.Headers["User-Agent"];
 
+        Survey = await _db.GetSurveyAsync(SurveyUrl);
         User = await _db.GetUserAsync(Survey, UserName, IPAddress, UserAgent);
+
+
         isLoading = false;
     }
 

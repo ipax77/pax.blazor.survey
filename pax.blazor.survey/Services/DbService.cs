@@ -2,7 +2,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using pax.blazor.survey.Db;
-using pax.blazor.survey.Migrations;
 using pax.blazor.survey.Models;
 using System;
 using System.Collections.Generic;
@@ -16,10 +15,12 @@ namespace pax.blazor.survey.Services
     {
         private readonly SurveyContext context;
         private readonly ILogger<DbService> logger;
+        private readonly ReloadService reload;
 
-        public DbService(SurveyContext context, ILogger<DbService> logger)
+        public DbService(SurveyContext context, ReloadService reload, ILogger<DbService> logger)
         {
             this.context = context;
+            this.reload = reload;
             this.logger = logger;
         }
 
@@ -44,9 +45,16 @@ namespace pax.blazor.survey.Services
         /// <summary>
         /// Returns a tracked survey database object
         /// </summary>
-        public async Task<Survey> GetSurveyAsync(int id)
+        public async Task<Survey> GetSurveyAsync(int id, string authname = null)
         {
-            Survey survey = await context.Surveys.FindAsync(id);
+            Survey survey = null;
+            
+            if (authname != null)
+                survey = reload.GetSurvey(authname);
+            if (survey != null)
+                return survey;
+
+            survey = await context.Surveys.FindAsync(id);
 
             if (survey == null)
                 return null;
@@ -61,7 +69,7 @@ namespace pax.blazor.survey.Services
         }
 
         /// <summary>
-        /// Returns a tracked survey database object
+        /// Returns a untracked survey database object
         /// </summary>
         public async Task<Survey> GetSurveyAsync(string url)
         {
@@ -94,7 +102,7 @@ namespace pax.blazor.survey.Services
         /// <summary>
         /// Saves the modified or created Survey
         /// </summary>
-        public async Task<bool> SaveSurveyAsync(Survey survey)
+        public async Task<bool> SaveSurveyAsync(Survey survey, string authname)
         {
             foreach (var question in survey.Questions.ToArray())
             {
@@ -107,6 +115,7 @@ namespace pax.blazor.survey.Services
             if (survey.ID == 0)
                 context.Surveys.Add(survey);
             await context.SaveChangesAsync();
+            reload.ClearSurvey(authname);
             return true;
         }
 
@@ -117,20 +126,24 @@ namespace pax.blazor.survey.Services
         {
             if (survey == null)
                 return null;
-
             string name = String.Empty;
+
+            // try to avoid multiple submissions from one person without privacy conflicts
             if (!String.IsNullOrEmpty(username))
                 name = username;
             else if (survey.AllowAnonymouse)
             {
-                // try to avoid multiple submissions from one person without privacy conflicts
-                name = CreateMD5(ip + agent);
+                
+                name = CreateMD5(ip + agent + "test1");
             }
 
+            // Reload user from cache if available
             if (String.IsNullOrEmpty(name))
                 return null;
+            User user = reload.GetUser(name);
+            if (user != null)
+                return user;
 
-            User user = null;
             user = await context.Users.FirstOrDefaultAsync(x => x.Name == name);
             if (user == null)
             {
@@ -161,9 +174,12 @@ namespace pax.blazor.survey.Services
         /// </summary>
         public Response GetResponse(Survey survey, Question question, User user)
         {
-            Response response = user.Responses.FirstOrDefault(x => x.Survey == survey && x.Question == question);
+            //logger.LogInformation($"GetResponse: {user.Name}: {survey.ID}|{question.ID}");
+            Response response = user.Responses.FirstOrDefault(x => x.Survey.ID == survey.ID && x.Question.ID == question.ID);
+
             if (response != null)
                 return response;
+            //logger.LogInformation("create new");
 
             //response = context.Responses.FirstOrDefault(f => f.User == user && f.Survey == survey && f.Question == question);
             if (response == null)
@@ -195,12 +211,117 @@ namespace pax.blazor.survey.Services
         {
             if (user.ID == 0)
                 context.Users.Add(user);
-
             await context.SaveChangesAsync();
+            
+            reload.ClearUser(user.Name);
+            
             return true;
         }
 
-        public async Task SeedSurvey(Survey survey, int count = 1000)
+        public async Task CreateAndSeedTestSurvey()
+        {
+            Survey survey = new Survey();
+            survey.Title = "Test Survey";
+            survey.Description = "test survey";
+            survey.SubUrl = "test";
+            survey.AllowAnonymouse = true;
+            survey.ShowProgress = true;
+            survey.ShowResult = true;
+            survey.Expire = DateTime.Today.AddDays(30);
+            survey.Questions = new List<Question>();
+
+            Question question1 = new Question();
+            question1.Interview = "What is the meaning of life?";
+            question1.Type = (int)QuestionType.Text;
+            question1.Surveys = new List<Survey>() { survey };
+            question1.Pos = 1;
+            Option option11 = new Option();
+            option11.OptionValue = "42";
+            option11.Questions = new List<Question>() { question1 };
+            option11.Pos = 1;
+            question1.Options = new List<Option>() { option11 };
+            survey.Questions.Add(question1);
+
+            Question question2 = new Question();
+            question2.Interview = "How are you?";
+            question2.Type = (int)QuestionType.Bool;
+            question2.Pos = 2;
+            Option option21 = new Option();
+            option21.OptionValue = "good";
+            option21.Questions = new List<Question>() { question2 };
+            option21.Pos = 1;
+            Option option22 = new Option();
+            option22.OptionValue = "bad";
+            option22.Questions = new List<Question>() { question2 };
+            option22.Pos = 2;
+            question2.Options = new List<Option>() { option21, option22 };
+            survey.Questions.Add(question2);
+
+            Question question3 = new Question();
+            question3.Interview = "What is your favorite color?";
+            question3.Type = (int)QuestionType.SingleSelect;
+            question3.Pos = 3;
+            Option option31 = new Option();
+            option31.OptionValue = "red";
+            option31.Questions = new List<Question>() { question3 };
+            option31.Pos = 1;
+            Option option32 = new Option();
+            option32.OptionValue = "blue";
+            option32.Questions = new List<Question>() { question3 };
+            option32.Pos = 2;
+            Option option33 = new Option();
+            option33.OptionValue = "green";
+            option33.Questions = new List<Question>() { question3 };
+            option33.Pos = 3;
+            Option option34 = new Option();
+            option34.OptionValue = "yellow";
+            option34.Questions = new List<Question>() { question3 };
+            option34.Pos = 4;
+            Option option35 = new Option();
+            option35.OptionValue = "black";
+            option35.Questions = new List<Question>() { question3 };
+            option35.Pos = 5;
+            question3.Options = new List<Option>() { option31, option32, option33, option34 };
+            survey.Questions.Add(question3);
+
+            Question question4 = new Question();
+            question4.Interview = "What pets do you own?";
+            question4.Type = (int)QuestionType.MultiSelect;
+            question4.Pos = 4;
+            Option option41 = new Option();
+            option41.OptionValue = "cat";
+            option41.Questions = new List<Question>() { question4 };
+            option41.Pos = 1;
+            Option option42 = new Option();
+            option42.OptionValue = "dog";
+            option42.Questions = new List<Question>() { question4 };
+            option42.Pos = 2;
+            Option option43 = new Option();
+            option43.OptionValue = "mouse";
+            option43.Questions = new List<Question>() { question4 };
+            option43.Pos = 3;
+            Option option44 = new Option();
+            option44.OptionValue = "pig";
+            option44.Questions = new List<Question>() { question4 };
+            option44.Pos = 4;
+            Option option45 = new Option();
+            option45.OptionValue = "snake";
+            option45.Questions = new List<Question>() { question4 };
+            option45.Pos = 5;
+            Option option46 = new Option();
+            option46.OptionValue = "crocodile";
+            option46.Questions = new List<Question>() { question4 };
+            option46.Pos = 6;
+            question4.Options = new List<Option>() { option41, option42, option43, option44, option45, option46 };
+            survey.Questions.Add(question4);
+
+            context.Surveys.Add(survey);
+            await context.SaveChangesAsync();
+            await SeedSurvey(survey);
+
+        }
+
+        public async Task SeedSurvey(Survey survey, int count = 10000)
         {
             string ip = "::1";
             string agent = "testagent2";

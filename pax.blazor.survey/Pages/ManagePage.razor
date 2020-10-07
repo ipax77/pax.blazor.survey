@@ -6,6 +6,7 @@
 @using Microsoft.Extensions.Logging
 @inject ILogger<ManagePage> _logger
 @inject DbService _db
+@inject AuthenticationStateProvider _auth
 
 
 @if (isLoading)
@@ -21,7 +22,10 @@
 }
 else
 {
+<div class="btn-block">
     <button type="button" class="btn btn-primary" @onclick="CreateNew">Create New Survey</button>
+    <button type="button" class="btn btn-primary" @onclick="CreateTest">Create Test Survey</button>
+</div>
 
     <div class="d-flex">
         <div class="col">
@@ -46,19 +50,24 @@ else
     List<SurveyListItem> surveyList = new List<SurveyListItem>();
     bool isLoading = true;
     AnswerComponent AnswerComponent;
+    public string AuthName = String.Empty;
 
     protected override async Task OnInitializedAsync()
     {
-
+        AuthName = await AuthenticationService.CheckAuth(_auth);
         surveyList = await _db.GetSurveysListAsync();
-        if (surveyList.Any())
+        Survey = await _db.GetSurveyAsync(0, AuthName);
+        if (Survey == null)
         {
-            Survey = await _db.GetSurveyAsync(surveyList.First().ID);
-        }
-        else
-        {
-            Survey = new Survey();
-            Survey.Questions = new List<Question>() { new Question() { Pos = 1, Options = new List<Option>() { new Option() { Pos = 1 } } } };
+            if (surveyList.Any())
+            {
+                Survey = await _db.GetSurveyAsync(surveyList.First().ID, AuthName);
+            }
+            else
+            {
+                Survey = new Survey();
+                Survey.Questions = new List<Question>() { new Question() { Pos = 1, Options = new List<Option>() { new Option() { Pos = 1 } } } };
+            }
         }
         isLoading = false;
     }
@@ -74,5 +83,10 @@ else
     {
         Survey = new Survey();
         Survey.Questions = new List<Question>() { new Question() { Pos = 1, Options = new List<Option>() { new Option() { Pos = 1 } } } };
+    }
+
+    async void CreateTest()
+    {
+        await _db.CreateAndSeedTestSurvey();
     }
 }

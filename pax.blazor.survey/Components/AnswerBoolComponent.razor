@@ -37,10 +37,7 @@
 
     protected override void OnParametersSet()
     {
-        _logger.LogInformation("parameter set");
-        
-        if (Response == null)
-            Response = _db.GetResponse(Survey, Question, User);
+        Response = _db.GetResponse(Survey, Question, User);
         base.OnParametersSet();
     }
 
