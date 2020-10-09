@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace pax.blazor.survey.Migrations
 {
-    public partial class init : Migration
+    public partial class Init : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -14,26 +14,12 @@ namespace pax.blazor.survey.Migrations
                     ID = table.Column<int>(type: "INTEGER", nullable: false)
                         .Annotation("Sqlite:Autoincrement", true),
                     Pos = table.Column<int>(type: "INTEGER", nullable: false),
-                    OptionValue = table.Column<string>(type: "TEXT", nullable: true)
+                    OptionValue = table.Column<string>(type: "TEXT", nullable: true),
+                    Count = table.Column<int>(type: "INTEGER", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Options", x => x.ID);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "Questions",
-                columns: table => new
-                {
-                    ID = table.Column<int>(type: "INTEGER", nullable: false)
-                        .Annotation("Sqlite:Autoincrement", true),
-                    Pos = table.Column<int>(type: "INTEGER", nullable: false),
-                    Interview = table.Column<string>(type: "TEXT", nullable: false),
-                    Type = table.Column<int>(type: "INTEGER", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Questions", x => x.ID);
                 });
 
             migrationBuilder.CreateTable(
@@ -71,6 +57,53 @@ namespace pax.blazor.survey.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Questions",
+                columns: table => new
+                {
+                    ID = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Pos = table.Column<int>(type: "INTEGER", nullable: false),
+                    Interview = table.Column<string>(type: "TEXT", nullable: false),
+                    Type = table.Column<int>(type: "INTEGER", nullable: false),
+                    Count = table.Column<int>(type: "INTEGER", nullable: false),
+                    SurveyID = table.Column<int>(type: "INTEGER", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Questions", x => x.ID);
+                    table.ForeignKey(
+                        name: "FK_Questions_Surveys_SurveyID",
+                        column: x => x.SurveyID,
+                        principalTable: "Surveys",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "SurveyUser",
+                columns: table => new
+                {
+                    SurveysID = table.Column<int>(type: "INTEGER", nullable: false),
+                    UsersID = table.Column<int>(type: "INTEGER", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SurveyUser", x => new { x.SurveysID, x.UsersID });
+                    table.ForeignKey(
+                        name: "FK_SurveyUser_Surveys_SurveysID",
+                        column: x => x.SurveysID,
+                        principalTable: "Surveys",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_SurveyUser_Users_UsersID",
+                        column: x => x.UsersID,
+                        principalTable: "Users",
+                        principalColumn: "ID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "OptionQuestion",
                 columns: table => new
                 {
@@ -90,30 +123,6 @@ namespace pax.blazor.survey.Migrations
                         name: "FK_OptionQuestion_Questions_QuestionsID",
                         column: x => x.QuestionsID,
                         principalTable: "Questions",
-                        principalColumn: "ID",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "QuestionSurvey",
-                columns: table => new
-                {
-                    QuestionsID = table.Column<int>(type: "INTEGER", nullable: false),
-                    SurveysID = table.Column<int>(type: "INTEGER", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_QuestionSurvey", x => new { x.QuestionsID, x.SurveysID });
-                    table.ForeignKey(
-                        name: "FK_QuestionSurvey_Questions_QuestionsID",
-                        column: x => x.QuestionsID,
-                        principalTable: "Questions",
-                        principalColumn: "ID",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_QuestionSurvey_Surveys_SurveysID",
-                        column: x => x.SurveysID,
-                        principalTable: "Surveys",
                         principalColumn: "ID",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -152,30 +161,6 @@ namespace pax.blazor.survey.Migrations
                         principalTable: "Users",
                         principalColumn: "ID",
                         onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "SurveyUser",
-                columns: table => new
-                {
-                    SurveysID = table.Column<int>(type: "INTEGER", nullable: false),
-                    UsersID = table.Column<int>(type: "INTEGER", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_SurveyUser", x => new { x.SurveysID, x.UsersID });
-                    table.ForeignKey(
-                        name: "FK_SurveyUser_Surveys_SurveysID",
-                        column: x => x.SurveysID,
-                        principalTable: "Surveys",
-                        principalColumn: "ID",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_SurveyUser_Users_UsersID",
-                        column: x => x.UsersID,
-                        principalTable: "Users",
-                        principalColumn: "ID",
-                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -233,9 +218,9 @@ namespace pax.blazor.survey.Migrations
                 column: "QuestionsID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_QuestionSurvey_SurveysID",
-                table: "QuestionSurvey",
-                column: "SurveysID");
+                name: "IX_Questions_SurveyID",
+                table: "Questions",
+                column: "SurveyID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Responses_Pos",
@@ -272,9 +257,6 @@ namespace pax.blazor.survey.Migrations
                 name: "OptionQuestion");
 
             migrationBuilder.DropTable(
-                name: "QuestionSurvey");
-
-            migrationBuilder.DropTable(
                 name: "SurveyUser");
 
             migrationBuilder.DropTable(
@@ -287,10 +269,10 @@ namespace pax.blazor.survey.Migrations
                 name: "Questions");
 
             migrationBuilder.DropTable(
-                name: "Surveys");
+                name: "Users");
 
             migrationBuilder.DropTable(
-                name: "Users");
+                name: "Surveys");
         }
     }
 }

@@ -18,4 +18,8 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="5.0.0-rc.1.20451.13" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\pax.blazor.chartjs\pax.blazor.chartjs.csproj" />
+  </ItemGroup>
+
 </Project>

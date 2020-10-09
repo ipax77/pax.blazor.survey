@@ -1,0 +1,40 @@
+﻿@page "/result"
+@page "/result/{SurveyUrl}"
+@using pax.blazor.chartjs
+@using pax.blazor.survey.Services
+@using pax.blazor.survey.Models
+@inject DbService _db
+@inject ResultService _res
+<h3>ResultPage</h3>
+
+@if (survey != null)
+{
+    @foreach (Question question in survey.Questions)
+    {
+        <h4>@question.Interview</h4>
+        <div class="w-50">
+            <ChartJSComponent chartData="question.ChartData" chartId="question.Pos"></ChartJSComponent>
+        </div>
+    }
+}
+
+@code {
+    [Parameter]
+    public string SurveyUrl { get; set; }
+
+    Survey survey;
+
+    protected override void OnInitialized()
+    {
+        Init();
+        base.OnInitialized();
+    }
+
+    public async void Init()
+    {
+        SurveyUrl = "test";
+        survey = await _db.GetSurveyAsync(SurveyUrl);
+        ResultService.CreateQuickResult(survey);
+    }
+
+}

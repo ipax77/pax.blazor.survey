@@ -30,7 +30,7 @@ namespace pax.blazor.survey
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(
+                options.UseSqlite(
                     Configuration.GetConnectionString("DefaultConnection")));
             services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddRoles<IdentityRole>()
@@ -64,11 +64,11 @@ namespace pax.blazor.survey
 
             // Create and migrate Databases
             //surveyContext.Database.EnsureDeleted();
-            //surveyContext.Database.Migrate();
+            surveyContext.Database.Migrate();
             //applicationDbContext.Database.Migrate();
 
             // Seed User-Database if empty
-            SurveyData.Init(userManager, roleManager, conf).GetAwaiter().GetResult();
+            //SurveyData.Init(userManager, roleManager, conf).GetAwaiter().GetResult();
 
             app.UseForwardedHeaders(new ForwardedHeadersOptions
             {

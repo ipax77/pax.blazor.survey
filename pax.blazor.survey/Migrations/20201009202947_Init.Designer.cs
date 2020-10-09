@@ -9,8 +9,8 @@ using pax.blazor.survey.Db;
 namespace pax.blazor.survey.Migrations
 {
     [DbContext(typeof(SurveyContext))]
-    [Migration("20201007231608_init")]
-    partial class init
+    [Migration("20201009202947_Init")]
+    partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -31,21 +31,6 @@ namespace pax.blazor.survey.Migrations
                     b.HasIndex("QuestionsID");
 
                     b.ToTable("OptionQuestion");
-                });
-
-            modelBuilder.Entity("QuestionSurvey", b =>
-                {
-                    b.Property<int>("QuestionsID")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("SurveysID")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("QuestionsID", "SurveysID");
-
-                    b.HasIndex("SurveysID");
-
-                    b.ToTable("QuestionSurvey");
                 });
 
             modelBuilder.Entity("SurveyUser", b =>
@@ -103,6 +88,9 @@ namespace pax.blazor.survey.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<int>("Count")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("OptionValue")
                         .HasColumnType("TEXT");
 
@@ -120,6 +108,9 @@ namespace pax.blazor.survey.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
+                    b.Property<int>("Count")
+                        .HasColumnType("INTEGER");
+
                     b.Property<string>("Interview")
                         .IsRequired()
                         .HasColumnType("TEXT");
@@ -127,10 +118,15 @@ namespace pax.blazor.survey.Migrations
                     b.Property<int>("Pos")
                         .HasColumnType("INTEGER");
 
+                    b.Property<int?>("SurveyID")
+                        .HasColumnType("INTEGER");
+
                     b.Property<int>("Type")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("ID");
+
+                    b.HasIndex("SurveyID");
 
                     b.ToTable("Questions");
                 });
@@ -241,21 +237,6 @@ namespace pax.blazor.survey.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("QuestionSurvey", b =>
-                {
-                    b.HasOne("pax.blazor.survey.Models.Question", null)
-                        .WithMany()
-                        .HasForeignKey("QuestionsID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("pax.blazor.survey.Models.Survey", null)
-                        .WithMany()
-                        .HasForeignKey("SurveysID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
             modelBuilder.Entity("SurveyUser", b =>
                 {
                     b.HasOne("pax.blazor.survey.Models.Survey", null)
@@ -284,6 +265,15 @@ namespace pax.blazor.survey.Migrations
                     b.Navigation("Option");
 
                     b.Navigation("Response");
+                });
+
+            modelBuilder.Entity("pax.blazor.survey.Models.Question", b =>
+                {
+                    b.HasOne("pax.blazor.survey.Models.Survey", "Survey")
+                        .WithMany("Questions")
+                        .HasForeignKey("SurveyID");
+
+                    b.Navigation("Survey");
                 });
 
             modelBuilder.Entity("pax.blazor.survey.Models.Response", b =>
@@ -324,6 +314,8 @@ namespace pax.blazor.survey.Migrations
 
             modelBuilder.Entity("pax.blazor.survey.Models.Survey", b =>
                 {
+                    b.Navigation("Questions");
+
                     b.Navigation("Responses");
                 });
 

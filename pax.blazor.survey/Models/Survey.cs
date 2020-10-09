@@ -1,4 +1,5 @@
-﻿using System;
+﻿using pax.blazor.chartjs;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -34,9 +35,12 @@ namespace pax.blazor.survey.Models
         [Required]
         public string Interview { get; set; }
         public int Type { get; set; }
+        public int Count { get; set; }
         public ICollection<Option> Options { get; set; }
-        public ICollection<Survey> Surveys { get; set; }
         public ICollection<Response> Responses { get; set; }
+        public Survey Survey { get; set; }
+        [NotMapped]
+        public ChartData ChartData { get; set; }
     }
 
     public class Option
@@ -44,6 +48,7 @@ namespace pax.blazor.survey.Models
         public int ID { get; set; }
         public int Pos { get; set; }
         public string OptionValue { get; set; }
+        public int Count { get; set; }
         public ICollection<Answer> Answers { get; set; }
         public ICollection<Question> Questions { get; set; }
     }

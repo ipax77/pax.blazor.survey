@@ -65,7 +65,7 @@
     public async void Result(int id)
     {
         Survey survey = await _db.GetSurveyAsync(id);
-        await _res.CreateResult(survey);
+        await _res.CreateTrueResult(survey);
     }
 
     public async void Seed(int id)

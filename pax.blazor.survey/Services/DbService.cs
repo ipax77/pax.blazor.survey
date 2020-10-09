@@ -38,7 +38,7 @@ namespace pax.blazor.survey.Services
         /// </summary>
         public async Task<List<QuestionListItem>> GetSurveyQuestionsAsync(Survey survey)
         {
-            var questions = context.Questions.Include(i => i.Responses).Where(x => x.Surveys.Contains(survey)).AsNoTracking();
+            var questions = context.Questions.Include(i => i.Responses).Where(x => x.Survey == survey).AsNoTracking();
             return await questions.Select(s => new QuestionListItem { ID = s.ID, Pos = s.Pos, Interview = s.Interview, Type = s.Type, Responses = s.Responses.Count() }).ToListAsync();
         }
 
@@ -155,6 +155,8 @@ namespace pax.blazor.survey.Services
                     .LoadAsync();
                 await context.Entry(user)
                     .Collection(b => b.Responses)
+                    .Query()
+                    .Include(i => i.Answers)
                     .LoadAsync();
             }
             if (user.Surveys == null)
@@ -207,10 +209,50 @@ namespace pax.blazor.survey.Services
         /// <summary>
         /// Saves the User
         /// </summary>
-        public async Task<bool> SaveUserAsync(User user)
+        public async Task<bool> SaveUserAsync(User user, Survey survey)
         {
             if (user.ID == 0)
                 context.Users.Add(user);
+            
+            // TODO ???
+            lock (context)
+            {
+                // count questions and their options for new entires
+                foreach (Response response in user.Responses.Where(x => x.ID == 0 && x.Survey == survey))
+                {
+                    if (response.Pos > 0)
+                    {
+                        response.Question.Count++;
+                        response.Question.Options.First(f => f.Pos == response.Pos).Count++;
+                    }
+                    if (response.Answers != null)
+                    {
+                        foreach (Answer answer in response.Answers.Where(x => x.ID == 0 && x.Selected))
+                            answer.Option.Count++;
+                    }
+                }
+
+                // recount options for changed entires
+                foreach (Response response in user.Responses.Where(x => x.Survey == survey && x.ID != 0))
+                {
+                    if (context.Entry(response).State == EntityState.Modified)
+                    {
+                        Response before = (Response)context.Entry(response).OriginalValues.ToObject();
+                        response.Question.Options.First(f => f.Pos == before.Pos).Count--;
+                        response.Question.Options.First(f => f.Pos == response.Pos).Count++;
+                    }
+                    if (response.Answers != null)
+                    {
+                        foreach (Answer answer in response.Answers.Where(x => x.ID > 0 && context.Entry(x).State == EntityState.Modified))
+                        {
+                            if (answer.Selected)
+                                answer.Option.Count++;
+                            else
+                                answer.Option.Count--;
+                        }
+                    }
+                }
+            }
             await context.SaveChangesAsync();
             
             reload.ClearUser(user.Name);
@@ -233,7 +275,7 @@ namespace pax.blazor.survey.Services
             Question question1 = new Question();
             question1.Interview = "What is the meaning of life?";
             question1.Type = (int)QuestionType.Text;
-            question1.Surveys = new List<Survey>() { survey };
+            question1.Survey = survey;
             question1.Pos = 1;
             Option option11 = new Option();
             option11.OptionValue = "42";
@@ -321,7 +363,7 @@ namespace pax.blazor.survey.Services
 
         }
 
-        public async Task SeedSurvey(Survey survey, int count = 10000)
+        public async Task SeedSurvey(Survey survey, int count = 100)
         {
             string ip = "::1";
             string agent = "testagent2";
@@ -334,6 +376,7 @@ namespace pax.blazor.survey.Services
 
                 foreach (Question question in survey.Questions)
                 {
+                    question.Count++;
                     Response response = GetResponse(survey, question, user);
                     if (question.Type == (int)QuestionType.Text || question.Type == (int)QuestionType.LongText)
                     {
@@ -348,6 +391,7 @@ namespace pax.blazor.survey.Services
                         {
                             int select = rng.Next(options.Count);
                             response.Answers.First(f => f.Pos == options[select]).Selected = true;
+                            question.Options.First(f => f.Pos == options[select]).Count++;
                             options.Remove(options[select]);
                         }
                     }
@@ -357,6 +401,7 @@ namespace pax.blazor.survey.Services
                         List<int> options = new List<int>(question.Options.Select(s => s.Pos));
                         int select = rng.Next(options.Count);
                         response.Pos = question.Options.First(f => f.Pos == options[select]).Pos;
+                        question.Options.First(f => f.Pos == options[select]).Count++;
                     }
                     if (response.ID == 0)
                         context.Responses.Add(response);
