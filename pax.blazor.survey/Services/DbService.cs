@@ -280,6 +280,9 @@ namespace pax.blazor.survey.Services
 
         public async Task CreateAndSeedTestSurvey()
         {
+            if (context.Surveys.FirstOrDefault(f => f.SubUrl == "test") != null)
+                return;
+
             Survey survey = new Survey();
             survey.Title = "Test Survey";
             survey.Description = "test survey";
@@ -381,7 +384,7 @@ namespace pax.blazor.survey.Services
 
         }
 
-        public async Task SeedSurvey(Survey survey, int count = 100)
+        public async Task SeedSurvey(Survey survey, int count = 1000)
         {
             string userId = "123456";
             Random rng = new Random();

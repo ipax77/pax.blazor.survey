@@ -1,11 +1,13 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
+using System;
 using System.Threading.Tasks;
 
 namespace pax.blazor.survey.Data
 {
     public static class SurveyData
     {
+        public static Version surveyVersion = new Version(0, 0, 1);
         public static string configfile = "/data/surveyconfig.json";
         public static string CustomAnswerFormValidationMessage = "Character ';' is not allowed.";
         public static string DefaultPlaceholder = "Type your answer here";
