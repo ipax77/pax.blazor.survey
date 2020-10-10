@@ -209,7 +209,7 @@
     <button type="submit" class="btn btn-primary" tabindex="@(++tabindex)">Save</button>
 </EditForm>
 
-
+<FeedbackComponent @ref="FeedbackComponent"></FeedbackComponent>
 
 @code {
     [Parameter]
@@ -219,6 +219,7 @@
     public pax.blazor.survey.Pages.ManagePage ManagePage { get; set; }
 
     private EditContext editContext;
+    FeedbackComponent FeedbackComponent;
 
     const string fmFormContainer = "form-group form-row";
     const string fmFormLabel = "col-sm-5 col-md-5 col-lg-4 col-xl-3 col-form-label text-muted";
@@ -325,9 +326,15 @@
 
     private async Task HandleValidSubmit()
     {
+        FeedbackComponent.SetState(Data.Feedback.Working);
+
         bool success = await _db.SaveSurveyAsync(Survey, ManagePage.AuthName);
         if (success == true)
+        {
+            FeedbackComponent.SetState(Data.Feedback.Success, "Successfully saved. Thank you!");
             ManagePage.Update(Survey);
+        } else
+            FeedbackComponent.SetState(Data.Feedback.Success, "Failed saving, please try again later.");
     }
 
     private async Task HandleInvalidSubmit()

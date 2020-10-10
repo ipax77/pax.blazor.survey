@@ -1,0 +1,106 @@
+﻿@using Microsoft.AspNetCore.Components.Web.Virtualization
+@using pax.blazor.survey.Models
+@using pax.blazor.survey.Services
+@inject DbService _db
+<button type="button" class="btn btn-primary mb-2" @onclick="@( async() => ShowAnswers())">Show Answers</button>
+@if (isLoading)
+{
+    <div class="d-flex flex-row">
+        <div class="flex-shrink-1 p-2">
+            <h4><span class="oi spinner-grow spinner-grow-sm text-success"> </span></h4>
+        </div>
+        <div class="justify-content-center align-self-center">
+            <h4 class="text-white-50">Loading...</h4>
+        </div>
+    </div>
+}
+else
+{
+    @if (showAnswers)
+    {
+        <div class="overflow-auto h-auto" style="width: 600px;">
+            <table class="table table-sm table-striped table-hover">
+                <thead>
+                    <tr>
+                        <th>Answer</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <Virtualize Items="Answers">
+                        <tr>
+                            <td class="pointer" @onclick="e => ShowLongAnswer(context.ID, e)">@context.Answer</td>
+                        </tr>
+                    </Virtualize>
+                </tbody>
+            </table>
+        </div>
+    }
+}
+
+@if (ShowPopup)
+{
+    <div class="modal" tabindex="-1" style="display:block; top: @(top)px;" role="dialog" @onclick="ClosePopup">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3 class="modal-title">Answer</h3>
+                    <button type="button" class="close"
+                            @onclick="ClosePopup">
+                        <span aria-hidden="true">X</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p class="text-wrap">@longAnswer</p>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+
+    [Parameter]
+    public Question question { get; set; }
+
+    bool showAnswers = false;
+    bool isLoading = false;
+    bool ShowPopup = false;
+    double left = 0;
+    double top = 0;
+    string longAnswer = String.Empty;
+
+
+    List<AnswerListItem> Answers = new List<AnswerListItem>();
+
+    async Task ShowAnswers()
+    {
+        if (showAnswers)
+        {
+            showAnswers = false;
+            StateHasChanged();
+            Answers = new List<AnswerListItem>();
+            return;
+        }
+
+        isLoading = true;
+        StateHasChanged();
+        Answers = await _db.GetTextAnswers(question.ID);
+        isLoading = false;
+        showAnswers = true;
+        StateHasChanged();
+    }
+
+    void ShowLongAnswer(int id, MouseEventArgs e)
+    {
+        longAnswer = _db.GetFullText(id);
+        left = e.ClientX;
+        top = e.ClientY;
+        ShowPopup = true;
+    }
+
+    void ClosePopup()
+    {
+        ShowPopup = false;
+    }
+
+}

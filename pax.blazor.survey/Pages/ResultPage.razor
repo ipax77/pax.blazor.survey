@@ -3,38 +3,57 @@
 @using pax.blazor.chartjs
 @using pax.blazor.survey.Services
 @using pax.blazor.survey.Models
+@using pax.blazor.survey.Components;
+@using Microsoft.Extensions.Logging
 @inject DbService _db
-@inject ResultService _res
-<h3>ResultPage</h3>
+@inject ILogger<ResultPage> _logger
 
-@if (survey != null)
+@if (isLoading)
 {
-    @foreach (Question question in survey.Questions)
+    <ChartJSComponent chartId="0"></ChartJSComponent>
+}
+else
+{
+    @if (survey != null)
     {
-        <h4>@question.Interview</h4>
-        <div class="w-50">
-            <ChartJSComponent chartData="question.ChartData" chartId="question.Pos"></ChartJSComponent>
-        </div>
+        <h3>Result for @survey.SubUrl</h3>
+        @foreach (Question question in survey.Questions)
+        {
+            <h4>@question.Interview</h4>
+            @if (question.Type == (int)QuestionType.Text || question.Type == (int)QuestionType.LongText)
+            {
+                <ResultTextComponent question="question"></ResultTextComponent>
+            }
+            else
+            {
+                <div class="" style="width: 600px;">
+                    <ChartJSComponent chart="question.Chart" chartId="question.Pos"></ChartJSComponent>
+                </div>
+            }
+        }
     }
 }
+
 
 @code {
     [Parameter]
     public string SurveyUrl { get; set; }
 
     Survey survey;
+    bool isLoading = true;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        Init();
-        base.OnInitialized();
+        _logger.LogInformation("init");
+        await Init();
     }
 
-    public async void Init()
+    public async Task Init()
     {
         SurveyUrl = "test";
         survey = await _db.GetSurveyAsync(SurveyUrl);
         ResultService.CreateQuickResult(survey);
+        _logger.LogInformation("init done");
+        isLoading = false;
     }
-
 }

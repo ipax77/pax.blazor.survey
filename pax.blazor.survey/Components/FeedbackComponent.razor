@@ -1,0 +1,130 @@
+﻿@inject IJSRuntime _js
+@using pax.blazor.survey.Data
+<style>
+    /* The snackbar - position it at the bottom and in the middle of the screen */
+    #snackbar@(Context) {
+        visibility: hidden; /* Hidden by default. Visible on click */
+        min-width: 250px; /* Set a default minimum width */
+        margin-left: -125px; /* Divide value of min-width by 2 */
+        /* background-color: #333; /* Black background color */
+        /* color: #fff; /* White text color */
+        text-align: center; /* Centered text */
+        border-radius: 2px; /* Rounded borders */
+        padding: 16px; /* Padding */
+        position: fixed; /* Sit on top of the screen */
+        z-index: 1; /* Add a z-index if needed */
+        left: 50%; /* Center the snackbar */
+        bottom: 30px; /* 30px from the bottom */
+    }
+
+    /* Show the snackbar when clicking on a button (class added with JavaScript) */
+.showsnack {
+    visibility: visible !important; /* Show the snackbar */
+    /* Add animation: Take 0.5 seconds to fade in and out the snackbar.
+However, delay the fade out process for 2.5 seconds */
+    -webkit-animation: fadesnackin 0.5s, fadesnackout 0.5s 2.5s;
+    animation: fadesnackin 0.5s, fadesnackout 0.5s 2.5s;
+}
+
+/* Animations to fade the snackbar in and out */
+@@-webkit-keyframes fadesnackin {
+    from {
+        bottom: 0;
+        opacity: 0;
+    }
+
+    to {
+        bottom: 30px;
+        opacity: 1;
+    }
+}
+
+@@keyframes fadesnackin {
+    from {
+        bottom: 0;
+        opacity: 0;
+    }
+
+    to {
+        bottom: 30px;
+        opacity: 1;
+    }
+}
+
+@@-webkit-keyframes fadesnackout {
+    from {
+        bottom: 30px;
+        opacity: 1;
+    }
+
+    to {
+        bottom: 0;
+        opacity: 0;
+    }
+}
+
+@@keyframes fadesnackout {
+    from {
+        bottom: 30px;
+        opacity: 1;
+    }
+
+    to {
+        bottom: 0;
+        opacity: 0;
+    }
+}
+</style>
+
+<header>
+    <div class="fixed-bottom mb-3" style="width: 25px; opacity: 0.7; left: 250px !important;">
+        <div class="rounded bg-warning m-0 p-0">
+            @if (mtFeedback == Feedback.Default)
+            {
+            }
+            else if (mtFeedback == Feedback.Working)
+            {
+                <span id="feedbackicon" class="oi spinner-grow spinner-grow-sm text-success p-1"> </span>
+            }
+            else if (mtFeedback == Feedback.Success)
+            {
+                <span id="feedbackicon" class="oi oi-circle-check text-success pointer p-1" @onclick="@(() => _js.InvokeVoidAsync("showToast", "snackbar" + Context))">&nbsp;</span>
+            }
+            else if (mtFeedback == Feedback.Failed)
+            {
+                <span id="feedbackicon" class="oi oi-circle-x text-danger pointer p-1" @onclick="@(() => _js.InvokeVoidAsync("showToast", "snackbar" + Context))">&nbsp;</span>
+            }
+        </div>
+    </div>
+</header>
+
+<div id="snackbar@(Context)">
+    @if (mtFeedback == Feedback.Success)
+    {
+        <h4><span class="badge badge-success">@textFeedback</span></h4>
+    }
+    else if (mtFeedback == Feedback.Failed)
+    {
+        <h4><span class="badge badge-danger">@textFeedback</span></h4>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public Feedback mtFeedback { get; set; }
+
+    [Parameter]
+    public string Context { get; set; } = String.Empty;
+
+    [Parameter]
+    public string textFeedback { get; set; } = String.Empty;
+
+    public async void SetState(Feedback fMFeedback, string feedback = "")
+    {
+        mtFeedback = fMFeedback;
+        textFeedback = feedback;
+        await InvokeAsync(() => StateHasChanged());
+        if (fMFeedback != Feedback.Working)
+            await _js.InvokeVoidAsync("showToast", "snackbar" + Context, feedback);
+    }
+}

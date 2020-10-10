@@ -58,9 +58,9 @@ async function initiateChartJS(chartId) {
                 return;
             }
         }
-        addScript("_content/pax.blazor.chartjs/chartjs-plugin-labels.min.js");
-        loading = true;
-        await sleep(125);
+        //addScript("_content/pax.blazor.chartjs/chartjs-plugin-labels.min.js");
+        //loading = true;
+        //await sleep(125);
         window.isLoading = false;
     }
 }
@@ -124,8 +124,17 @@ window.PieChart = async(chartId) => {
                 ]
             },
             options: {
+                layout: {
+                    padding: {
+                        left: 50,
+                        right: 50,
+                        top: 50,
+                        bottom: 50
+                    }
+                },
                 responsive: true,
                 legend: {
+                    display: false,
                     position: 'left',
                     labels: {
                         fontSize: 14,
@@ -135,15 +144,17 @@ window.PieChart = async(chartId) => {
                 plugins: {
                     // Change options for ALL labels of THIS CHART
                     datalabels: {
-                        color: '#121202',
-                        display: 'auto'
-                    },
-                    labels: {
-                        position: 'outside',
-                        showActualPercentages: true,
-                        fontColor: '#121202',
-                        outsidePadding: 4,
-                        textMargin: 4
+                        display: 'auto',
+                        color: '#0a050c',
+                        backgroundColor: '#cdc7ce',
+                        borderColor: '#491756',
+                        borderRadius: 4,
+                        borderWidth: 1,
+                        formatter: function (value, context) {
+                            return context.chart.data.labels[context.dataIndex] + "\n" + value + '%';
+                        },
+                        anchor: 'end',
+                        align: 'end'
                     }
                 }
             }
@@ -180,7 +191,7 @@ window.RadarChart = async(chartId) => {
             plugins: [ChartDataLabels],
             type: "radar",
             data: {
-                labels: null,
+                labels: [],
                 datasets: [
                     {
                         label: "Result",
@@ -192,17 +203,39 @@ window.RadarChart = async(chartId) => {
                         fill: true,
                         pointRadius: 5,
                         pointHoverRadius: 10,
-                        showLine: true
+                        showLine: true,
+                        datalabels: {
+                            display: true,
+                            color: '#0a050c',
+                            backgroundColor: '#cdc7ce',
+                            borderColor: '#491756',
+                            borderRadius: 2,
+                            borderWidth: 1,
+                            formatter: function (value, context) {
+                                return context.chart.data.labels[context.dataIndex] + "\n" + value + '%';
+                            },
+                            align: 'end',
+                            anchor: 'center',
+                        }
                     }
                 ]
             },
             options: {
+                layout: {
+                    padding: {
+                        left: 50,
+                        right: 50,
+                        top: 50,
+                        bottom: 50
+                    }
+                },
                 scale: {
                     ticks: {
                         color: "#808080",
-                        backdropColor: "#041326",
+                        backdropColor: "#faf88a",
                         display: true,
                         beginAtZero: true
+                        //suggestedMax: 100
                     },
                     gridLines: {
                         color: "#808080",
@@ -214,7 +247,8 @@ window.RadarChart = async(chartId) => {
                         lineWidth: 0.25
                     },
                     pointLabels: {
-                        fontSize: 14,
+                        display: false,
+                        fontSize: 24,
                         fontColor: "#121202",
                         outsidePadding: 4,
                         textMargin: 4

@@ -40,7 +40,7 @@ namespace pax.blazor.survey.Models
         public ICollection<Response> Responses { get; set; }
         public Survey Survey { get; set; }
         [NotMapped]
-        public ChartData ChartData { get; set; }
+        public Chart Chart { get; set; }
     }
 
     public class Option
@@ -115,5 +115,12 @@ namespace pax.blazor.survey.Models
         public string Interview { get; set; }
         public int Type { get; set; }
         public int Responses { get; set; }
+    }
+
+    public class AnswerListItem
+    {
+        public int ID { get; set; }
+        public int UserID { get; set; }
+        public string Answer { get; set; }
     }
 }

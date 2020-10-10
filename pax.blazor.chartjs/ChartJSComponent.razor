@@ -1,6 +1,19 @@
-﻿<canvas id="@canvasId"></canvas>
+﻿
+@if (isLoading)
+{
+    <div class="d-flex flex-row">
+        <div class="flex-shrink-1 p-2">
+            <h4><span class="oi spinner-grow spinner-grow-sm text-success"> </span></h4>
+        </div>
+        <div class="justify-content-center align-self-center">
+            <h4 class="text-black-50">Loading...</h4>
+        </div>
+    </div>
+}
+
+<canvas id="@canvasId"></canvas>
 
 @code {
 
-    
+
 }

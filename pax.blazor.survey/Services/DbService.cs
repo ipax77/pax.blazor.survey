@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using pax.blazor.survey.Components;
 using pax.blazor.survey.Db;
 using pax.blazor.survey.Models;
 using System;
@@ -16,6 +17,7 @@ namespace pax.blazor.survey.Services
         private readonly SurveyContext context;
         private readonly ILogger<DbService> logger;
         private readonly ReloadService reload;
+        public FeedbackComponent FeedbackComponent { get; set; }
 
         public DbService(SurveyContext context, ReloadService reload, ILogger<DbService> logger)
         {
@@ -122,19 +124,18 @@ namespace pax.blazor.survey.Services
         /// <summary>
         /// Gets or creates a User Database Object
         /// </summary>
-        public async Task<User> GetUserAsync(Survey survey, string username, string ip, string agent)
+        public async Task<User> GetUserAsync(Survey survey, string username, string userId)
         {
             if (survey == null)
                 return null;
             string name = String.Empty;
 
-            // try to avoid multiple submissions from one person without privacy conflicts
+            // try to avoid multiple submissions from one person
             if (!String.IsNullOrEmpty(username))
                 name = username;
             else if (survey.AllowAnonymouse)
             {
-                
-                name = CreateMD5(ip + agent + "test1");
+                name = userId;
             }
 
             // Reload user from cache if available
@@ -203,6 +204,23 @@ namespace pax.blazor.survey.Services
                     .Load();
 
             return response;
+        }
+
+        /// <summary>
+        /// Text answers for result view
+        /// </summary>
+        public async Task<List<AnswerListItem>> GetTextAnswers(int questionId) {
+
+            var answers = context.Responses.Where(x => x.Question.ID == questionId).Select(s => new AnswerListItem() { ID = s.ID, UserID = s.User.ID, Answer = s.Feedback.Length > 30 ? s.Feedback.Substring(0, 30) + "..." : s.Feedback });
+            return await answers.ToListAsync();
+        }
+
+        /// <summary>
+        /// full Text answer for result view
+        /// </summary>
+        public string GetFullText(int responseID)
+        {
+            return context.Responses.Find(responseID).Feedback;
         }
 
 
@@ -365,14 +383,13 @@ namespace pax.blazor.survey.Services
 
         public async Task SeedSurvey(Survey survey, int count = 100)
         {
-            string ip = "::1";
-            string agent = "testagent2";
+            string userId = "123456";
             Random rng = new Random();
 
             for (int i = 0; i < count; i++)
             {
                 string username = "TestUser" + i;
-                User user = await GetUserAsync(survey, username, ip, agent);
+                User user = await GetUserAsync(survey, username, userId);
 
                 foreach (Question question in survey.Questions)
                 {
@@ -381,7 +398,7 @@ namespace pax.blazor.survey.Services
                     if (question.Type == (int)QuestionType.Text || question.Type == (int)QuestionType.LongText)
                     {
                         response.Pos = 1;
-                        response.Feedback = "Und es war Sommer";
+                        response.Feedback = Guid.NewGuid().ToString();
                     }
                     else if (question.Type == (int)QuestionType.MultiSelect)
                     {

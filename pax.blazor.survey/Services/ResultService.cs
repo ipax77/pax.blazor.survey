@@ -25,17 +25,18 @@ namespace pax.blazor.survey.Services
         {
             foreach (Question question in survey.Questions)
             {
-                question.ChartData = new ChartData();
-                question.ChartData.Labels = new List<string>();
-                question.ChartData.Data = new List<double>();
+                question.Chart = new Chart();
+                if (question.Type == (int)QuestionType.MultiSelect)
+                    question.Chart.ChartType = ChartType.Radar;
+                else
+                    question.Chart.ChartType = ChartType.Pie;
+
                 foreach (Option option in question.Options)
                 {
-                    question.ChartData.Labels.Add(option.OptionValue);
-                    question.ChartData.Data.Add(Math.Round((double)(option.Count * 100) / (double)question.Count, 2));
-                    if (question.Type == (int)QuestionType.MultiSelect)
-                        question.ChartData.ChartType = ChartType.Radar;
-                    else
-                        question.ChartData.ChartType = ChartType.Pie;
+                    ChartData chartData = new ChartData();
+                    chartData.Label = option.OptionValue;
+                    chartData.Result =  Math.Round((double)(option.Count * 100) / (double)question.Count, 2);
+                    question.Chart.Data.Add(chartData);
                 }
             }
         }

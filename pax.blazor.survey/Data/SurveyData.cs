@@ -12,6 +12,7 @@ namespace pax.blazor.survey.Data
         public const string fmFormContainer = "form-group row justify-content-start mb-1";
         public const string fmFormLabel = "col-sm-4 col-lg-2 col-xl-2 col-form-label text-muted";
         public const string fmFormInput = "col-9";
+        public static string BasePath = string.Empty;
 
         /// <summary>
         /// Initialize Data
@@ -85,5 +86,13 @@ namespace pax.blazor.survey.Data
             }
 
         }
+    }
+
+    public enum Feedback
+    {
+        Default,
+        Working,
+        Success,
+        Failed
     }
 }

@@ -9,7 +9,7 @@
 @using pax.blazor.survey.Data
 @inject DbService _db
 @inject AuthenticationStateProvider _auth
-@inject IHttpContextAccessor _httpContextAccssor
+@inject IJSRuntime _js
 
 @if (isLoading)
 {
@@ -42,18 +42,32 @@ else
     Survey Survey;
     User User;
     List<SurveyListItem> surveyList = new List<SurveyListItem>();
+    string UserID = String.Empty;
+    string UserName = String.Empty;
 
     protected override async Task OnInitializedAsync()
     {
-        string UserName = await CheckAuth();
-        string IPAddress = _httpContextAccssor.HttpContext.Connection.RemoteIpAddress.ToString();
-        string UserAgent = _httpContextAccssor.HttpContext.Request.Headers["User-Agent"];
+        UserName = await CheckAuth();
 
         Survey = await _db.GetSurveyAsync(SurveyUrl);
-        User = await _db.GetUserAsync(Survey, UserName, IPAddress, UserAgent);
+        User = await _db.GetUserAsync(Survey, UserName, UserID);
 
+        if (Survey != null && User != null)
+            isLoading = false;
+    }
 
-        isLoading = false;
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            if (User == null)
+            {
+                UserID = await _js.InvokeAsync<string>("getID");
+                User = await _db.GetUserAsync(Survey, UserName, UserID);
+                isLoading = false;
+                StateHasChanged();
+            }
+        }
     }
 
     public void Update(Survey survey)

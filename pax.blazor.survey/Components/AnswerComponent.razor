@@ -56,6 +56,7 @@
 
     <button type="submit" class="btn btn-primary">Submit</button>
 </EditForm>
+<FeedbackComponent @ref="FeedbackComponent"></FeedbackComponent>
 
 @code {
     [Parameter]
@@ -69,6 +70,7 @@
 
     private EditContext editContext;
     ProgressComponent ProgressComponent;
+    FeedbackComponent FeedbackComponent;
 
     float progress = 0;
 
@@ -111,9 +113,14 @@
 
     private async Task HandleValidSubmit()
     {
+        FeedbackComponent.SetState(Data.Feedback.Working);
         if (isPreview == false)
         {
             bool success = await _db.SaveUserAsync(User, Survey);
+            if (success)
+                FeedbackComponent.SetState(Data.Feedback.Success, "Successfully saved. Thank you!");
+            else
+                FeedbackComponent.SetState(Data.Feedback.Failed, "Failed saving, please try again later.");
         }
     }
 
