@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 
 namespace pax.blazor.survey.Services
 {
+    /// <summary>
+    /// Saves User/Survey Object in memory to catch connection lost szenarios
+    /// </summary>
     public class ReloadService
     {
         private IMemoryCache cache;

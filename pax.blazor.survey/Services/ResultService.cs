@@ -23,6 +23,9 @@ namespace pax.blazor.survey.Services
 
         public static void CreateQuickResult(Survey survey)
         {
+            if (survey == null)
+                return;
+
             foreach (Question question in survey.Questions)
             {
                 question.Chart = new Chart();

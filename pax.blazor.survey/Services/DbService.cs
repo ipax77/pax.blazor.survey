@@ -384,7 +384,7 @@ namespace pax.blazor.survey.Services
 
         }
 
-        public async Task SeedSurvey(Survey survey, int count = 1000)
+        public async Task SeedSurvey(Survey survey, int count = 10)
         {
             string userId = "123456";
             Random rng = new Random();

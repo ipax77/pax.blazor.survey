@@ -1,7 +1,7 @@
 {
   "ConnectionStrings": {
-    "DefaultConnection": "",
-    "ApplicationConnection": ""
+    "SQLiteConnection": "Filename=survey.db",
+    "DefaultConnection": "Filename=surveyauth.db"
   },
   "AdminUser": {
     "UserName": "testadmin@localhost",

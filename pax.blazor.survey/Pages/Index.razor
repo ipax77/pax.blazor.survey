@@ -1,6 +1,20 @@
 ﻿@page "/"
 
-<h1>Hello, world!</h1>
-
-Welcome to your new app.
-
+<h4 class="text-black-50">Blazor Server ASP .Net Core 5 Survey</h4>
+<div>
+    <h5>Create custom surveys and results</h5>
+    <br />
+    <p>GitHub: <a href="https://github.com/ipax77/pax.blazor.survey">Source</a> <span class="badge badge-dark">v @pax.blazor.survey.Data.SurveyData.surveyVersion</span></p>
+    <p>Database: <a href="https://www.sqlite.org/index.html">SQLite</a> (until <a href="https://github.com/PomeloFoundation/Pomelo.EntityFrameworkCore.MySql/issues/1088">Polemo MySQL</a> is ready for .NET 5)</p>
+    <p>Charts: <a href="https://www.chartjs.org/">ChartJS</a></p>
+    <p>User Id: Using md5 hashed <a href="https://www.cloudflare.com/cdn-cgi/trace">Cloudflare trace</a> information to detect same user</p>
+    <p>Reload: Catching connection lost using MemoryCache</p>
+    <p>Authorization: For detailed results and internal surveys: TBD</p>
+    <p class="text-muted">Lizence: <a href="https://github.com/ipax77/pax.blazor.survey/blob/master/LICENSE">GNU General Public License v3.0</a></p>
+    <br />
+    <div class="btn-block">
+        <button class="btn btn-outline-primary"><a href="manage">Create/Manage Survey</a></button>
+        <button class="btn btn-outline-primary"><a href="survey">Survey</a></button>
+        <button class="btn btn-outline-primary"><a href="result">Survey result</a></button>
+    </div>
+</div>

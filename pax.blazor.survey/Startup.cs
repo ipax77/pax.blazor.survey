@@ -73,7 +73,6 @@ namespace pax.blazor.survey
             //SurveyData.Init(userManager, roleManager, conf).GetAwaiter().GetResult();
 
             string basePath = Environment.GetEnvironmentVariable("ASPNETCORE_BASEPATH");
-            //basePath = "/fmtest";
             if (!string.IsNullOrEmpty(basePath))
             {
                 SurveyData.BasePath = basePath;
