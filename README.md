@@ -7,15 +7,15 @@
     User Id: Using md5 hashed [Cloudflare trace](https://www.cloudflare.com/cdn-cgi/trace) information to detect same user
     Reload: Catching connection lost using MemoryCache
     Authorization: For detailed results and internal surveys: TBD
-    _Lizence: [GNU General Public License v3.0](../blob/master/LICENSE)"_
+    _Lizence: [GNU General Public License v3.0](../blob/master/LICENSE)_
 
 ![Survey](/images/survey_github.png "Survey/Result/Create")
 
 #### Get Started
 
-- Copy [samplesurveyconfig.json](../blob/master/pax.blazor.survey/samplesurveyconfig.json) to a folder outside the repository
+- Copy [samplesurveyconfig.json](../master/pax.blazor.survey/samplesurveyconfig.json) to a folder outside the repository
 - Modify the copy to your needs
-- Change path in [SurveyData.cs](../blob/master/pax.blazor.survey/Data/SurveyData.cs) line 11 to the copy
+- Change path in [SurveyData.cs](../master/pax.blazor.survey/Data/SurveyData.cs) line 11 to the copy
     ```
     public static string configfile = "samplesurveyconfig.json";
     ```
