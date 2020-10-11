@@ -23,6 +23,7 @@
 #### TODO
 - Identity/Authorization
 - Answer types (integer, float, date)
+- Question Icons
 - Test Project
 
 #### How to Engage, Contribute, and Give Feedback

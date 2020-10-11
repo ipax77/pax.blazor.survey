@@ -96,6 +96,107 @@ window.AddData = (chartId, label, winrate, dcolor, dimage) => {
     }
 }
 
+window.BarChart = async (chartId) => {
+    var i = 0;
+    while (window.isLoading) {
+        i += 1;
+        await sleep(125);
+        if (i > 1000) {
+            console.error("Failed init pie chart " + chartId);
+            return false;
+        }
+    }
+    var piecan = document.getElementById("paxchartjscanvas" + chartId);
+    if (piecan != null) {
+        var ctx = piecan.getContext('2d');
+        var config = {
+            plugins: [ChartDataLabels],
+            type: 'horizontalBar',
+                data: {
+                labels: [],
+                datasets: [
+                    {
+                        label: 'Result',
+                        backgroundColor: [],
+                        borderColor: "rgba(34, 38, 255, 1)",
+                        pointBackgroundColor: "rgba(34, 38, 255, 1)",
+                        borderWidth: 1,
+                        data: [],
+                        fill: true,
+                        pointRadius: 5,
+                        pointHoverRadius: 10,
+                        showLine: true
+                    }
+                ]
+            },
+            options: {
+                layout: {
+                    padding: {
+                        right: 50
+                    }
+                },
+                plugins: {
+                    datalabels: {
+                        display: 'true',
+                        color: '#0a050c',
+                        //backgroundColor: '#cdc7ce',
+                        //borderColor: '#491756',
+                        //borderRadius: 4,
+                        //borderWidth: 1,
+                        formatter: function (value, context) {
+                            return value + '%';
+                        },
+                        anchor: 'end',
+                        align: 'start'
+                    }
+                },
+                responsive: true,
+                maintainAspectRatio: false,
+                legend: {
+                    display: false,
+                    position: 'top',
+                    labels: {
+                        fontSize: 14,
+                        fontColor: '#d9d8ea'
+                    }
+                },
+                title: {
+                    display: false,
+                },
+                scales: {
+                    xAxes: [
+                        {
+                            scaleLabel: {
+                                display: false,
+                                labelString: '%',
+                                fontColor: '#0a050c'
+                            },
+                            ticks: {
+                                beginAtZero: true
+                            }
+                        }
+                    ],
+                    yAxes: [
+                        {
+                            scaleLabel: {
+                                display: false,
+                                labelString: 'Answers',
+                                fontColor: '#0a050c'
+                            }
+                        }
+                    ]
+                }
+            }
+        }
+        if(window.myCharts[chartId] != null) {
+        window.myCharts[chartId].destroy();
+        }
+        window.myCharts[chartId] = new Chart(ctx, config);
+        return true;
+    }
+}
+
+
 window.PieChart = async(chartId) => {
     var i = 0;
     while (window.isLoading) {
@@ -160,12 +261,6 @@ window.PieChart = async(chartId) => {
             }
 
         };
-        //config.options.plugins.datalabels.formatter = function (value, context) {
-        //    var index = context.dataIndex;
-        //    var myvalue = piechart.pielabels[index];
-        //    //return myvalue + '\n' + value;
-        //    return myvalue;
-        //};
         if (window.myCharts[chartId] != null) {
             window.myCharts[chartId].destroy();
         }

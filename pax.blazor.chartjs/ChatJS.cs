@@ -45,6 +45,9 @@ namespace pax.blazor.chartjs
 
         public static string GetColor(int i, ChartType chartType)
         {
+            if (chartType == ChartType.Bar)
+                return "rgba(34, 38, 255, 0.45)";
+
             string mycolor = String.Empty;
             if (i >= 0 && i < Colors.Count)
                 mycolor = Colors[i];
@@ -54,6 +57,7 @@ namespace pax.blazor.chartjs
             string temp_col = color.R + ", " + color.G + ", " + color.B;
             if (chartType == ChartType.Radar)
                 return "rgba(" + temp_col + ", 0.5)";
+
             return "rgba(" + temp_col + ", 1)";
         }
     }
@@ -61,8 +65,7 @@ namespace pax.blazor.chartjs
     public enum ChartType
     {
         Pie,
-        Radar
+        Radar,
+        Bar
     }
-
-
 }

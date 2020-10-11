@@ -24,6 +24,7 @@ namespace pax.blazor.chartjs
 
         bool isLoading = true;
         public string canvasId => "paxchartjscanvas" + chartId;
+        int height = 0;
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
@@ -45,6 +46,7 @@ namespace pax.blazor.chartjs
             if (chart == null)
                 return;
             bool done = false;
+            
             if (chart.ChartType == ChartType.Radar)
             {
                 done = await _js.InvokeAsync<bool>("RadarChart", chartId);
@@ -53,12 +55,17 @@ namespace pax.blazor.chartjs
             {
                 done = await _js.InvokeAsync<bool>("PieChart", chartId);
                 logger.LogInformation("pie init " + chartId);
+            } else if (chart.ChartType == ChartType.Bar)
+            {
+                done = await _js.InvokeAsync<bool>("BarChart", chartId);
+                logger.LogInformation("barchart init " + chartId);
+                height = 40 * chart.Data.Count;
             }
 
             if (done)
             {
                 int i = 0;
-                foreach (ChartData data in chart.Data.OrderBy(o => o.Result))
+                foreach (ChartData data in chart.Data.OrderByDescending(o => o.Result))
                 {
                     i++;
                     await _js.InvokeVoidAsync("AddData", chartId, data.Label, data.Result, data.Color == null ? ChartColors.GetColor(i, chart.ChartType) : data.Color, "");
