@@ -2,12 +2,12 @@
 
 ### Create custom surveys and results
 
-    Database: [SQLite](https://www.sqlite.org/index.html) until [Polemo MySQL](https://github.com/PomeloFoundation/Pomelo.EntityFrameworkCore.MySql/issues/1088) is ready for .NET 5
-    Charts: [ChartJS](https://www.chartjs.org/)
-    User Id: Using md5 hashed [Cloudflare trace](https://www.cloudflare.com/cdn-cgi/trace) information to detect same user
-    Reload: Catching connection lost using MemoryCache
-    Authorization: For detailed results and internal surveys: TBD
-    _Lizence: [GNU General Public License v3.0](../blob/master/LICENSE)_
+Database: [SQLite](https://www.sqlite.org/index.html) until [Polemo MySQL](https://github.com/PomeloFoundation/Pomelo.EntityFrameworkCore.MySql/issues/1088) is ready for .NET 5
+Charts: [ChartJS](https://www.chartjs.org/)
+User Id: Using md5 hashed [Cloudflare trace](https://www.cloudflare.com/cdn-cgi/trace) information to detect same user
+Reload: Catching connection lost using MemoryCache
+Authorization: For detailed results and internal surveys: TBD
+_Lizence: [GNU General Public License v3.0](../blob/master/LICENSE)_
 
 ![Survey](/images/survey_github.png "Survey/Result/Create")
 
