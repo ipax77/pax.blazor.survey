@@ -9,6 +9,7 @@
 - Authorization: For detailed results and internal surveys: TBD
 - _Lizence: [GNU General Public License v3.0](../blob/master/LICENSE)_
 
+[Test installation](https://www.pax77.org/survey/)
 ![Survey](/images/survey_github.png "Survey/Result/Create")
 
 #### Get Started
