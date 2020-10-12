@@ -5,11 +5,11 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using pax.blazor.survey.Areas.Identity;
+using pax.blazor.identity.Areas.Identity;
+using pax.blazor.identity.Data;
 using pax.blazor.survey.Data;
 using pax.blazor.survey.Db;
 using pax.blazor.survey.Services;
@@ -31,22 +31,18 @@ namespace pax.blazor.survey
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+            // Identity -------------------------------------
             services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlite(
-                    Configuration.GetConnectionString("DefaultConnection")));
+            options.UseSqlite(
+                Configuration.GetConnectionString("DefaultConnection")));
+            services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<IdentityUser>>();
             services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddRoles<IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>();
             services.AddRazorPages();
             services.AddServerSideBlazor();
-            services.AddScoped<AuthenticationStateProvider, RevalidatingIdentityAuthenticationStateProvider<IdentityUser>>();
-            services.AddDatabaseDeveloperPageExceptionFilter();
-            //services.AddDbContext<SurveyContext>(options => options
-            //    .EnableSensitiveDataLogging()
-            //    //.ConfigureWarnings(w => w.Throw(RelationalEventId.MultipleCollectionIncludeWarning))
-            //    .UseSqlServer(
-            //        //Configuration.GetConnectionString("ApplicationConnection")));
-            //        Configuration.GetConnectionString("DockerConnection")));
+            // ----------------------------------------------
+
             services.AddDbContext<SurveyContext>(options =>
                 options.UseSqlite(
                     Configuration.GetConnectionString("SQLiteConnection")
@@ -59,7 +55,7 @@ namespace pax.blazor.survey
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, SurveyContext surveyContext, ApplicationDbContext applicationDbContext, UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration conf)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, SurveyContext surveyContext, UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration conf)
         {
             CultureInfo.DefaultThreadCurrentCulture = CultureInfo.InvariantCulture;
             CultureInfo.DefaultThreadCurrentUICulture = CultureInfo.InvariantCulture;
@@ -67,10 +63,9 @@ namespace pax.blazor.survey
             // Create and migrate Databases
             //surveyContext.Database.EnsureDeleted();
             surveyContext.Database.Migrate();
-            //applicationDbContext.Database.Migrate();
 
             // Seed User-Database if empty
-            //SurveyData.Init(userManager, roleManager, conf).GetAwaiter().GetResult();
+            SurveyData.Init(userManager, roleManager, conf).GetAwaiter().GetResult();
 
             string basePath = Environment.GetEnvironmentVariable("ASPNETCORE_BASEPATH");
             if (!string.IsNullOrEmpty(basePath))

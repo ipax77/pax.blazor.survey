@@ -1,13 +1,9 @@
-﻿@page "/result"
-@page "/result/{SurveyUrl}"
-@using pax.blazor.chartjs
+﻿@using pax.blazor.chartjs
 @using pax.blazor.survey.Services
 @using pax.blazor.survey.Models
-@using pax.blazor.survey.Components;
 @using Microsoft.Extensions.Logging
-@inject DbService _db
 @inject AuthenticationStateProvider _auth
-@inject ILogger<ResultPage> _logger
+@inject ILogger<ResultComponent> _logger
 
 @if (isLoading)
 {
@@ -32,7 +28,9 @@ else
                 </div>
             }
         }
-    } else { 
+    }
+    else
+    {
         <p>There are no results available.</p>
     }
 }
@@ -40,11 +38,7 @@ else
 
 @code {
     [Parameter]
-    public string SurveyUrl { get; set; }
-
-    [Parameter]
     public Survey survey { get; set; }
-
     bool isLoading = true;
     string AuthName = String.Empty;
 
@@ -56,16 +50,6 @@ else
 
     public async Task Init()
     {
-        AuthName = await AuthenticationService.CheckAuth(_auth);
-        SurveyUrl = "test";
-        if (survey == null)
-            survey = await _db.GetSurveyAsync(SurveyUrl);
-        if (survey.ShowResult == false)
-        {
-            survey = null;
-            isLoading = false;
-            return;
-        }
         ResultService.CreateQuickResult(survey);
         isLoading = false;
     }

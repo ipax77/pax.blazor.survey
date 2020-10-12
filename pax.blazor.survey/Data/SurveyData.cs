@@ -16,6 +16,8 @@ namespace pax.blazor.survey.Data
         public const string fmFormLabel = "col-sm-4 col-lg-2 col-xl-2 col-form-label text-muted";
         public const string fmFormInput = "col-9";
         public static string BasePath = string.Empty;
+        public static string RoleAdmin = "SurveyAdministrator";
+        public static string RoleMod = "SurveyModerator";
 
         /// <summary>
         /// Initialize Data
@@ -31,24 +33,17 @@ namespace pax.blazor.survey.Data
         /// </summary>
         public static async Task SeedAdminUser(UserManager<IdentityUser> userManager, RoleManager<IdentityRole> roleManager, IConfiguration conf)
         {
-            if (!await roleManager.RoleExistsAsync("NormalUser"))
+            if (!await roleManager.RoleExistsAsync(RoleMod))
             {
                 IdentityRole role = new IdentityRole();
-                role.Name = "NormalUser";
+                role.Name = RoleMod;
                 var result = await roleManager.CreateAsync(role);
             }
 
-            if (!await roleManager.RoleExistsAsync("Moderator"))
+            if (!await roleManager.RoleExistsAsync(RoleAdmin))
             {
                 IdentityRole role = new IdentityRole();
-                role.Name = "Moderator";
-                var result = await roleManager.CreateAsync(role);
-            }
-
-            if (!await roleManager.RoleExistsAsync("Administrator"))
-            {
-                IdentityRole role = new IdentityRole();
-                role.Name = "Administrator";
+                role.Name = RoleAdmin;
                 var result = await roleManager.CreateAsync(role);
             }
 
@@ -66,7 +61,7 @@ namespace pax.blazor.survey.Data
 
                 if (result.Succeeded)
                 {
-                    await userManager.AddToRoleAsync(user, "Administrator");
+                    await userManager.AddToRoleAsync(user, RoleAdmin);
                 }
             }
 
@@ -84,7 +79,7 @@ namespace pax.blazor.survey.Data
 
                 if (result.Succeeded)
                 {
-                    await userManager.AddToRoleAsync(user, "Moderator");
+                    await userManager.AddToRoleAsync(user, RoleMod);
                 }
             }
 

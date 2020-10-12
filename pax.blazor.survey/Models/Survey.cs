@@ -17,7 +17,7 @@ namespace pax.blazor.survey.Models
         public string SubUrl { get; set; }
         public bool AllowAnonymouse { get; set; }
         public bool ShowProgress { get; set; }
-        public bool ShowResult { get; set; }
+        public bool ShowResult { get; set; } = true;
         public DateTime Created { get; set; }
         public DateTime Expire { get; set; } = DateTime.Today.AddDays(30);
         public ICollection<Question> Questions { get; set; }
