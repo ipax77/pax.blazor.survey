@@ -4,28 +4,50 @@
 @inject DbService _db
 @inject ResultService _res
 
-<Virtualize Items="surveyList">
-    <div class="d-flex pointer" @onclick="(() => ChangeSurvey(context.ID))">
-        <p class="col">@context.ID</p>
-        <p class="col">@context.Title</p>
-        <p class="col">@context.Questions</p>
-        <p class="col">@context.Users</p>
-        <span role="button" class="btn btn-danger" @onclick:stopPropagation @onclick="e => Delete(context.ID)">Delete</span>
-        <span role="button" class="btn btn-success" @onclick:stopPropagation @onclick="e => Result(context.ID)">Result</span>
-        <span role="button" class="btn btn-warning" @onclick:stopPropagation @onclick="e => Seed(context.ID)">Seed</span>
+<h4>Survey List</h4>
+<div class="row">
+    <div class="col-auto">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th scope="col">Manage</th>
+                    <th scope="col">ID</th>
+                    <th scope="col">Title</th>
+                    <th scope="col">Questions</th>
+                    <th scope="col">Users</th>
+                </tr>
+            </thead>
+            <tbody>
+                <Virtualize Items="surveyList">
+                    <tr class="pointer" @onclick="(() => ChangeSurvey(context.ID))">
+                        <td>
+                            <div class="btn-block">
+                                <span role="button" class="btn btn-sm btn-secondary" @onclick:stopPropagation @onclick="e => ChangeSurvey(context.ID)">Edit</span>
+                                <span role="button" class="btn btn-sm btn-danger" @onclick:stopPropagation @onclick="e => Delete(context.ID)">Delete</span>
+                                <span role="button" class="btn btn-sm btn-success" @onclick:stopPropagation @onclick="e => Result(context.ID)">Result</span>
+                                <span role="button" class="btn btn-sm btn-warning" @onclick:stopPropagation @onclick="e => Seed(context.ID)">Seed</span>
+                            </div>
+                        </td>
+                        <td>@context.ID</td>
+                        <td>@context.Title</td>
+                        <td>@context.Questions</td>
+                        <td>@context.Users</td>
+                    </tr>
+                </Virtualize>
+            </tbody>
+        </table>
     </div>
-</Virtualize>
-
+</div>
 
 @code {
     [Parameter]
     public Survey Survey { get; set; }
 
     [Parameter]
-    public pax.blazor.survey.Pages.ManagePage ManagePage { get; set;  }
+    public pax.blazor.survey.Pages.ManagePage ManagePage { get; set; }
 
     [Parameter]
-    public pax.blazor.survey.Pages.SurveyPage SurveyPage { get; set;  }
+    public pax.blazor.survey.Pages.SurveyPage SurveyPage { get; set; }
 
     [Parameter]
     public List<SurveyListItem> surveyList { get; set; } = new List<SurveyListItem>();
@@ -65,7 +87,9 @@
     public async void Result(int id)
     {
         Survey survey = await _db.GetSurveyAsync(id);
-        await _res.CreateTrueResult(survey);
+        if (ManagePage != null)
+            ManagePage.Update(survey, true);
+        //await _res.CreateTrueResult(survey);
     }
 
     public async void Seed(int id)

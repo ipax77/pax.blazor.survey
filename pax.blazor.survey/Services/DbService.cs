@@ -32,7 +32,7 @@ namespace pax.blazor.survey.Services
         public async Task<List<SurveyListItem>> GetSurveysListAsync()
         {
             var surveys = context.Surveys.Include(i => i.Questions).Include(j => j.Users).AsNoTracking();
-            return await surveys.Select(s => new SurveyListItem { ID = s.ID, Pos = s.Pos, Title = s.Title, Questions = s.Questions.Count(), Users = s.Users.Count() }).ToListAsync();
+            return await surveys.Select(s => new SurveyListItem { ID = s.ID, Pos = s.Pos, Title = s.Title.Length > 30 ? s.Title.Substring(0, 27) + "..." : s.Title, Questions = s.Questions.Count(), Users = s.Users.Count() }).ToListAsync();
         }
 
         /// <summary>

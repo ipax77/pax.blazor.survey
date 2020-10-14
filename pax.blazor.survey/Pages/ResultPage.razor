@@ -6,6 +6,7 @@
 @using pax.blazor.survey.Components;
 @using Microsoft.Extensions.Logging
 @inject DbService _db
+@inject AuthenticationStateProvider _auth
 @inject ILogger<ResultPage> _logger
 
 @if (isLoading)
@@ -31,6 +32,8 @@ else
                 </div>
             }
         }
+    } else { 
+        <p>There are no results available.</p>
     }
 }
 
@@ -39,21 +42,31 @@ else
     [Parameter]
     public string SurveyUrl { get; set; }
 
-    Survey survey;
+    [Parameter]
+    public Survey survey { get; set; }
+
     bool isLoading = true;
+    string AuthName = String.Empty;
+
 
     protected override async Task OnInitializedAsync()
     {
-        _logger.LogInformation("init");
         await Init();
     }
 
     public async Task Init()
     {
+        AuthName = await AuthenticationService.CheckAuth(_auth);
         SurveyUrl = "test";
-        survey = await _db.GetSurveyAsync(SurveyUrl);
+        if (survey == null)
+            survey = await _db.GetSurveyAsync(SurveyUrl);
+        if (survey.ShowResult == false)
+        {
+            survey = null;
+            isLoading = false;
+            return;
+        }
         ResultService.CreateQuickResult(survey);
-        _logger.LogInformation("init done");
         isLoading = false;
     }
 }

@@ -1,6 +1,5 @@
 ﻿@using pax.blazor.survey.Services
 @using pax.blazor.survey.Models
-@using pax.blazor.survey.Components
 @inject DbService _db
 @inject ReloadService _reload
 @implements IDisposable
@@ -53,8 +52,8 @@
             </CascadingValue>
         </CascadingValue>
     </CascadingValue>
-
     <button type="submit" class="btn btn-primary">Submit</button>
+    
 </EditForm>
 <FeedbackComponent @ref="FeedbackComponent"></FeedbackComponent>
 

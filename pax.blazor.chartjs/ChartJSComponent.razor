@@ -10,8 +10,9 @@
         </div>
     </div>
 }
-
-<canvas id="@canvasId"></canvas>
+<div style="min-height: @(height > 0 ? height : 300)px;">
+    <canvas id="@canvasId"></canvas>
+</div>
 
 @code {
 

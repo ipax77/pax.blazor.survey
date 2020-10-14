@@ -1,0 +1,56 @@
+﻿@using pax.blazor.chartjs
+@using pax.blazor.survey.Services
+@using pax.blazor.survey.Models
+@using Microsoft.Extensions.Logging
+@inject AuthenticationStateProvider _auth
+@inject ILogger<ResultComponent> _logger
+
+@if (isLoading)
+{
+    <ChartJSComponent chartId="0"></ChartJSComponent>
+}
+else
+{
+    @if (survey != null)
+    {
+        <h3>Result for @survey.SubUrl</h3>
+        @foreach (Question question in survey.Questions)
+        {
+            <h4>@question.Interview</h4>
+            @if (question.Type == (int)QuestionType.Text || question.Type == (int)QuestionType.LongText)
+            {
+                <ResultTextComponent question="question"></ResultTextComponent>
+            }
+            else
+            {
+                <div class="" style="width: 600px;">
+                    <ChartJSComponent chart="question.Chart" chartId="question.Pos"></ChartJSComponent>
+                </div>
+            }
+        }
+    }
+    else
+    {
+        <p>There are no results available.</p>
+    }
+}
+
+
+@code {
+    [Parameter]
+    public Survey survey { get; set; }
+    bool isLoading = true;
+    string AuthName = String.Empty;
+
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Init();
+    }
+
+    public async Task Init()
+    {
+        ResultService.CreateQuickResult(survey);
+        isLoading = false;
+    }
+}

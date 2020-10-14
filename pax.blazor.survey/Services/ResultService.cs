@@ -29,10 +29,14 @@ namespace pax.blazor.survey.Services
             foreach (Question question in survey.Questions)
             {
                 question.Chart = new Chart();
-                if (question.Type == (int)QuestionType.MultiSelect)
-                    question.Chart.ChartType = ChartType.Radar;
+                if (question.Options.Count > 4)
+                    question.Chart.ChartType = ChartType.Bar;
                 else
-                    question.Chart.ChartType = ChartType.Pie;
+                    if (question.Type == (int)QuestionType.MultiSelect)
+                        question.Chart.ChartType = ChartType.Radar;
+                    else
+                        question.Chart.ChartType = ChartType.Pie;
+
 
                 foreach (Option option in question.Options)
                 {

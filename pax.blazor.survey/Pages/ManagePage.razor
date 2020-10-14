@@ -1,92 +1,107 @@
 ﻿@page "/manage"
 @page "/manage/{SurveyID:int}"
-@using Models
-@using Services
+@using pax.blazor.survey.Models
+@using pax.blazor.survey.Services
 @using pax.blazor.survey.Components
+@using pax.blazor.survey.Data
 @using Microsoft.Extensions.Logging
 @inject ILogger<ManagePage> _logger
 @inject DbService _db
 @inject AuthenticationStateProvider _auth
-
-
-@if (isLoading)
-{
-    <div class="d-flex flex-row">
-        <div class="flex-shrink-1 p-2">
-            <h4><span class="oi spinner-grow spinner-grow-sm text-success"> </span></h4>
-        </div>
-        <div class="justify-content-center align-self-center">
-            <h4 class="text-white-50">Loading...</h4>
-        </div>
-    </div>
-}
-else
-{
-<div class="btn-block">
-    <button type="button" class="btn btn-primary" @onclick="CreateNew">Create New Survey</button>
-    <button type="button" class="btn btn-primary" @onclick="CreateTest">Create Test Survey</button>
-</div>
-
-    <div class="d-flex">
-        <div class="col">
-            <SurveyComponent Survey="Survey" ManagePage="this"></SurveyComponent>
-        </div>
-        <div class="col">
-            <div class="position-sticky sticky-top">
-                <h4 class="text-black-50">Preview</h4>
-                <AnswerComponent @ref="AnswerComponent" Survey="Survey" User="new User() { Responses = new List<Response>() }" isPreview="true"></AnswerComponent>
-            </div>
-        </div>
-    </div>
-    <SurveyListComponent Survey="Survey" ManagePage="this" surveyList="surveyList"></SurveyListComponent>
-}
-
-
-@code {
-    [Parameter]
-    public int SurveyID { get; set; }
-
-    Survey Survey;
-    List<SurveyListItem> surveyList = new List<SurveyListItem>();
-    bool isLoading = true;
-    AnswerComponent AnswerComponent;
-    public string AuthName = String.Empty;
-
-    protected override async Task OnInitializedAsync()
-    {
-        AuthName = await AuthenticationService.CheckAuth(_auth);
-        surveyList = await _db.GetSurveysListAsync();
-        Survey = await _db.GetSurveyAsync(0, AuthName);
-        if (Survey == null)
-        {
-            if (surveyList.Any())
+    <AuthorizeView Roles=@($"{SurveyData.RoleAdmin}, {SurveyData.RoleMod}")>
+        <Authorized>
+            @if (isLoading)
             {
-                Survey = await _db.GetSurveyAsync(surveyList.First().ID, AuthName);
+                <div class="d-flex flex-row">
+                    <div class="flex-shrink-1 p-2">
+                        <h4><span class="oi spinner-grow spinner-grow-sm text-success"> </span></h4>
+                    </div>
+                    <div class="justify-content-center align-self-center">
+                        <h4 class="text-white-50">Loading...</h4>
+                    </div>
+                </div>
             }
             else
             {
-                Survey = new Survey();
-                Survey.Questions = new List<Question>() { new Question() { Pos = 1, Options = new List<Option>() { new Option() { Pos = 1 } } } };
+        <div class="btn-block">
+            <button type="button" class="btn btn-primary" @onclick="CreateNew">Create New Survey</button>
+            <button type="button" class="btn btn-primary" @onclick="e => Survey = null">Survey List</button>
+            <button type="button" class="btn btn-primary" @onclick="CreateTest">Create Sample Survey</button>
+        </div>
+
+                if (Survey != null)
+                {
+                    if (showResult)
+                    {
+                        <ResultComponent survey="Survey"></ResultComponent>
+                    }
+                    else
+                    {
+                    <div class="d-flex">
+                        <div class="col">
+                            <SurveyComponent Survey="Survey" ManagePage="this"></SurveyComponent>
+                        </div>
+                        <div class="col">
+                            <div class="position-sticky sticky-top">
+                                <h4 class="text-black-50">Preview</h4>
+                                <AnswerComponent @ref="AnswerComponent" Survey="Survey" User="new User() { Responses = new List<Response>() }" isPreview="true"></AnswerComponent>
+                            </div>
+                        </div>
+                    </div>
+                    }
+                }
+                else
+                {
+                    <SurveyListComponent Survey="Survey" ManagePage="this" surveyList="surveyList"></SurveyListComponent>
+                }
             }
+        </Authorized>
+        <NotAuthorized>
+            <p>Please login to edit and create surveys.</p>
+        </NotAuthorized>
+    </AuthorizeView>
+
+    @code {
+        [Parameter]
+        public int SurveyID { get; set; }
+
+        Survey Survey;
+        List<SurveyListItem> surveyList = new List<SurveyListItem>();
+        bool isLoading = true;
+        bool showResult = false;
+        AnswerComponent AnswerComponent;
+        public string AuthName = String.Empty;
+
+        protected override async Task OnInitializedAsync()
+        {
+            AuthName = await AuthenticationService.CheckAuth(_auth);
+            if (String.IsNullOrEmpty(AuthName))
+                return;
+            surveyList = await _db.GetSurveysListAsync();
+            isLoading = false;
         }
-        isLoading = false;
-    }
 
-    public void Update(Survey survey)
-    {
-        Survey = survey;
-        AnswerComponent.Update();
-        //StateHasChanged();
-    }
+        public void Update(Survey survey, bool doshowResult = false)
+        {
+            Survey = survey;
+            if (doshowResult)
+                showResult = true;
+            else
+                showResult = false;
 
-    void CreateNew()
-    {
-        Survey = new Survey();
-        Survey.Questions = new List<Question>() { new Question() { Pos = 1, Options = new List<Option>() { new Option() { Pos = 1 } } } };
-    }
+            if (AnswerComponent != null)
+                AnswerComponent.Update();
+            StateHasChanged();
+        }
 
-    async void CreateTest()
-    {
-        await _db.CreateAndSeedTestSurvey();
+        void CreateNew()
+        {
+            Survey = new Survey();
+            Survey.Questions = new List<Question>() { new Question() { Pos = 1, Options = new List<Option>() { new Option() { Pos = 1 } } } };
+        }
+
+        async void CreateTest()
+        {
+            await _db.CreateAndSeedTestSurvey();
+        }
     }
-}

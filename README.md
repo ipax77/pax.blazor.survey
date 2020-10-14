@@ -21,8 +21,13 @@
     public static string configfile = "samplesurveyconfig.json";
     ```
 #### TODO
-- Identity/Authorization
+- Authorization doku
+- Allow Users to change answers after Submit
+- Result Count(s)
+- Favicon.ico
+- only show Result after submit
 - Answer types (integer, float, date)
+- Question Icons
 - Test Project
 
 #### How to Engage, Contribute, and Give Feedback
